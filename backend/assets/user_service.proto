@@ -1,0 +1,51 @@
+syntax = "proto2";
+
+option go_package = "github.com/htchan/UserService/grpc";
+
+import "google/protobuf/empty.proto";
+package grpc;
+
+service UserService {
+  rpc Signup (LoginParams) returns (AuthToken) {}
+  rpc DropOut (AuthToken) returns (Result) {}
+  rpc Login (LoginParams) returns (AuthToken) {}
+  rpc Logout (AuthToken) returns (google.protobuf.Empty) {}
+  rpc RegisterService (ServiceName) returns (AuthToken) {}
+  rpc UnregisterService (AuthToken) returns (Result) {}
+  rpc Authenticate (TokenWithPermission) returns (Result) {}
+  rpc Authorize (AuthorizeParams) returns (Result) {}
+  rpc RegisterPermission (TokenWithPermission) returns (Result) {}
+  rpc UnregisterPermission (TokenWithPermission) returns (Result) {}
+}
+
+message AuthToken {
+  required string token = 1;
+}
+
+message Result {
+  required string result = 1;
+}
+
+message ServiceName {
+  required string name = 1;
+}
+
+message AuthorizeParams {
+  required string token = 1;
+  required string username = 2;
+  required string permission = 3;
+}
+
+message LoginParams {
+  required string username = 1;
+  required string password = 2;
+}
+
+message TokenWithPermission {
+  required string token = 1;
+  required string permission = 2;
+}
+
+message Permission {
+  required string premission = 1;
+}

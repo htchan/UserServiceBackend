@@ -1,0 +1,27 @@
+compile_grpc: ../assets/user_service.proto
+	export PATH=${PATH}:${HOME}/go/bin
+	protoc --go_out=../internal/grpc --go_opt=paths=source_relative \
+		--go-grpc_out=../internal/grpc --go-grpc_opt=paths=source_relative \
+		--proto_path=../assets/ user_service.proto
+
+apply_db_schema: ../assets/schema.sql
+	rm -f ../assets/template.db
+	cat ../assets/schema.sql | sqlite3 ../assets/template.db
+
+test:
+	clear
+	go get github.com/htchan/UserService/${package}
+	go test github.com/htchan/UserService/${package}
+
+poc_orm:
+	clear
+	cd ../; go build ./POC/orm/sqlite_main.go; ./sqlite_main
+	sleep 10
+	cd ../; go build ./POC/orm/gorm_main.go; ./gorm_main
+	ls -l ../gorm_main ../sqlite_main
+	rm ../sqlite_main ../gorm_main
+
+build:
+	clear
+	go build github.com/htchan/UserService/cmd
+	mv cmd ../../main
