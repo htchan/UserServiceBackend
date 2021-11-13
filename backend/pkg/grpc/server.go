@@ -3,11 +3,11 @@ package grpc
 import (
 	"context"
 	goGrpc"google.golang.org/grpc"
-	"github.com/htchan/UserService/internal/grpc"
-	"github.com/htchan/UserService/pkg/users"
-	"github.com/htchan/UserService/pkg/services"
-	"github.com/htchan/UserService/pkg/tokens"
-	"github.com/htchan/UserService/pkg/permissions"
+	"github.com/htchan/UserService/backend/internal/grpc"
+	"github.com/htchan/UserService/backend/pkg/users"
+	"github.com/htchan/UserService/backend/pkg/services"
+	"github.com/htchan/UserService/backend/pkg/tokens"
+	"github.com/htchan/UserService/backend/pkg/permissions"
 	"log"
 	"net"
 )

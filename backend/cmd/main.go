@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/htchan/UserService/internal/utils"
-	"github.com/htchan/UserService/pkg/grpc"
-	"github.com/htchan/UserService/pkg/http"
+	"github.com/htchan/UserService/backend/internal/utils"
+	"github.com/htchan/UserService/backend/pkg/grpc"
+	"github.com/htchan/UserService/backend/pkg/http"
 	"sync"
 	"fmt"
 )

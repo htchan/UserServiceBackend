@@ -5,8 +5,8 @@ import (
 	"os"
 	"io"
 	"time"
-	"github.com/htchan/UserService/internal/utils"
-	"github.com/htchan/UserService/pkg/users"
+	"github.com/htchan/UserService/backend/internal/utils"
+	"github.com/htchan/UserService/backend/pkg/users"
 )
 
 func init() {

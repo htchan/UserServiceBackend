@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
-	"github.com/htchan/UserService/internal/utils"
-	"github.com/htchan/UserService/pkg/users"
-	"github.com/htchan/UserService/pkg/tokens"
+	"github.com/htchan/UserService/backend/internal/utils"
+	"github.com/htchan/UserService/backend/pkg/users"
+	"github.com/htchan/UserService/backend/pkg/tokens"
 )
 
 

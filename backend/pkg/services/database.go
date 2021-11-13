@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"github.com/htchan/UserService/internal/utils"
+	"github.com/htchan/UserService/backend/internal/utils"
 )
 
 func (service Service) create() error {

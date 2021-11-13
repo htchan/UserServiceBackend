@@ -4,8 +4,8 @@ import (
 	"testing"
 	"io"
 	"os"
-	"github.com/htchan/UserService/internal/utils"
-	"github.com/htchan/UserService/pkg/services"
+	"github.com/htchan/UserService/backend/internal/utils"
+	"github.com/htchan/UserService/backend/pkg/services"
 )
 
 func init() {

@@ -3,12 +3,12 @@ package grpc
 import (
 	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/grpc"
-	pb "github.com/htchan/UserService/internal/grpc"
-	"github.com/htchan/UserService/internal/utils"
-	"github.com/htchan/UserService/pkg/users"
-	"github.com/htchan/UserService/pkg/tokens"
-	"github.com/htchan/UserService/pkg/services"
-	"github.com/htchan/UserService/pkg/permissions"
+	pb "github.com/htchan/UserService/backend/internal/grpc"
+	"github.com/htchan/UserService/backend/internal/utils"
+	"github.com/htchan/UserService/backend/pkg/users"
+	"github.com/htchan/UserService/backend/pkg/tokens"
+	"github.com/htchan/UserService/backend/pkg/services"
+	"github.com/htchan/UserService/backend/pkg/permissions"
 
 	"context"
 	"net"

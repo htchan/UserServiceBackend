@@ -2,7 +2,7 @@ package permissions
 
 import (
 	"errors"
-	"github.com/htchan/UserService/pkg/services"
+	"github.com/htchan/UserService/backend/pkg/services"
 )
 
 type ServicePermission struct {

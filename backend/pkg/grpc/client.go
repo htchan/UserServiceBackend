@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	pb "github.com/htchan/UserService/internal/grpc"
+	pb "github.com/htchan/UserService/backend/internal/grpc"
 	grpc "google.golang.org/grpc"
 )
 

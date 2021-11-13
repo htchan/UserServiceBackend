@@ -2,7 +2,7 @@ package users
 
 import (
 	"errors"
-	"github.com/htchan/UserService/internal/utils"
+	"github.com/htchan/UserService/backend/internal/utils"
 )
 
 func (user User) create() error {

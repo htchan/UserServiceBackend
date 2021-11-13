@@ -4,7 +4,7 @@ import (
 	"testing"
 	"os"
 	"io"
-	"github.com/htchan/UserService/internal/utils"
+	"github.com/htchan/UserService/backend/internal/utils"
 )
 
 func init() {

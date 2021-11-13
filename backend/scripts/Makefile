@@ -10,8 +10,8 @@ apply_db_schema: ../assets/schema.sql
 
 test:
 	clear
-	go get github.com/htchan/UserService/${package}
-	go test github.com/htchan/UserService/${package}
+	go get github.com/htchan/UserService/backend/${package}
+	go test github.com/htchan/UserService/backend/${package}
 
 poc_orm:
 	clear
@@ -23,5 +23,5 @@ poc_orm:
 
 build:
 	clear
-	go build github.com/htchan/UserService/cmd
+	go build github.com/htchan/UserService/backend/cmd
 	mv cmd ../../main

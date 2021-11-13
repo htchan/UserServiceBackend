@@ -2,9 +2,9 @@ package tokens
 
 import (
 	"errors"
-	"github.com/htchan/UserService/internal/utils"
-	"github.com/htchan/UserService/pkg/services"
-	"github.com/htchan/UserService/pkg/users"
+	"github.com/htchan/UserService/backend/internal/utils"
+	"github.com/htchan/UserService/backend/pkg/services"
+	"github.com/htchan/UserService/backend/pkg/users"
 )
 
 func (userToken UserToken) create() error {
