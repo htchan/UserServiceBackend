@@ -1,0 +1,16 @@
+services:
+  test:
+    build:
+      context: ./backend
+      dockerfile: ./build/Dockerfile.test
+    profiles:
+      - all
+      - test
+    command: "go test github.com/htchan/UserService/internal/utils \
+      github.com/htchan/UserService/internal/grpc \
+      github.com/htchan/UserService/pkg/users \
+      github.com/htchan/UserService/pkg/services \
+      github.com/htchan/UserService/pkg/tokens \
+      github.com/htchan/UserService/pkg/permissions \
+      github.com/htchan/UserService/pkg/http \
+      github.com/htchan/UserService/cmd -v"

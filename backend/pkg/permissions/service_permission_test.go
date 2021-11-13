@@ -32,7 +32,7 @@ func TestRegisterPermission(t *testing.T) {
 			t.Fatalf("permissions.RegisterPermission() returns permission: %v, error: %v",
 				permission, err)
 		}
-		resultPermission, err := FindServicePermissionByPermission("permission")
+		resultPermission, err := FindServicePermissionByPermission(*service, "permission")
 		utils.CheckError(err)
 		if resultPermission.Permission != permission.Permission || resultPermission.serviceName != permission.serviceName {
 			t.Fatalf("permissions.RegisterPermissions() does not save permission")
@@ -58,7 +58,7 @@ func TestingUnregisterPermission(t *testing.T) {
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
-		err = UnregisterPermission(*permission)
+		err = UnregisterPermission(*service, *permission)
 		if err != nil {
 			t.Fatalf("permissions.UnregisterPermission() returns error %v", err)
 		}

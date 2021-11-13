@@ -1,0 +1,17 @@
+FROM golang:1.16.4-alpine3.13 as builder
+
+WORKDIR /go/src/github.com/htchan/UserService
+
+COPY ./go.mod .
+COPY ./go.sum .
+
+RUN apk add gcc musl-dev libc-dev make
+RUN go mod download
+
+COPY ./assets ./assets
+COPY ./internal ./internal
+COPY ./pkg ./pkg
+COPY ./cmd ./cmd
+COPY ./test ./test
+
+COPY ./scripts ./scripts

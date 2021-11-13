@@ -5,6 +5,7 @@ import (
 	"github.com/htchan/UserService/pkg/grpc"
 	"github.com/htchan/UserService/pkg/http"
 	"sync"
+	"fmt"
 )
 
 var wg sync.WaitGroup
@@ -20,7 +21,7 @@ func startGRPC() {
 }
 
 func startHTTP() {
-	http.StartServer(fmt.SPrintf("0.0.0.0:%v", httpPort))
+	http.StartServer(fmt.Sprintf("0.0.0.0:%v", httpPort))
 	wg.Done()
 
 }
