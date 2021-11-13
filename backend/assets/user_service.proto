@@ -2,7 +2,6 @@ syntax = "proto2";
 
 option go_package = "github.com/htchan/UserService/backend/grpc";
 
-import "google/protobuf/empty.proto";
 package grpc;
 
 service UserService {
