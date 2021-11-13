@@ -56,12 +56,10 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 func TestSignup(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
+
 	username := "signup_username"
 	password := "password"
-	loginParams := &pb.LoginParams{
-		Username: &username,
-		Password: &password,
-	}
+	loginParams := NewLoginParams(username, password)
 	
 	t.Run("success", func(t *testing.T) {
 		token, err := client.Signup(ctx, loginParams)
@@ -86,12 +84,10 @@ func TestSignup(t *testing.T) {
 func TestDropout(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
+
 	username := "dropout_username"
 	password := "password"
-	loginParams := &pb.LoginParams{
-		Username: &username,
-		Password: &password,
-	}
+	loginParams := NewLoginParams(username, password)
 	token, err := client.Signup(ctx, loginParams)
 	utils.CheckError(err)
 
@@ -120,13 +116,11 @@ func TestDropout(t *testing.T) {
 func TestLogin(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
+
 	username := "login_username"
 	password := "password"
 	invalidPassword := "invalid password"
-	loginParams := &pb.LoginParams{
-		Username: &username,
-		Password: &password,
-	}
+	loginParams := NewLoginParams(username, password)
 	token, err := client.Signup(ctx, loginParams)
 	utils.CheckError(err)
 
@@ -151,10 +145,7 @@ func TestLogin(t *testing.T) {
 	})
 	
 	t.Run("fail if password invalid", func(t *testing.T) {
-		invalidLoginParams := &pb.LoginParams{
-			Username: &username,
-			Password: &invalidPassword,
-		}
+		invalidLoginParams := NewLoginParams(username, invalidPassword)
 		actualToken, err := client.Login(ctx, invalidLoginParams)
 		if actualToken != nil || err == nil {
 			t.Fatalf("grpc.Server.Login success for invalid password: token - %v, err - %v",
@@ -165,15 +156,12 @@ func TestLogin(t *testing.T) {
 func TestLogout(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
+
 	username := "logout_username"
 	password := "password"
-	loginParams := &pb.LoginParams{
-		Username: &username,
-		Password: &password,
-	}
+	loginParams := NewLoginParams(username, password)
 	token, err := client.Signup(ctx, loginParams)
 	utils.CheckError(err)
-	defer client.Dropout(ctx, token)
 
 	t.Run("success", func(t *testing.T) {
 		result, err := client.Logout(ctx, token)
@@ -195,10 +183,9 @@ func TestLogout(t *testing.T) {
 func TestRegisterService(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
+
 	name := "reg_service"
-	serviceName := &pb.ServiceName{
-		Name: &name,
-	}
+	serviceName := NewServiceName(name)
 
 	t.Run("success", func(t *testing.T) {
 		token, err := client.RegisterService(ctx, serviceName)
@@ -227,10 +214,9 @@ func TestRegisterService(t *testing.T) {
 func TestUnregisterService(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
+
 	name := "un_reg_service"
-	serviceName := &pb.ServiceName{
-		Name: &name,
-	}
+	serviceName := NewServiceName(name)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
 
@@ -258,17 +244,14 @@ func TestUnregisterService(t *testing.T) {
 func TestRegisterPermission(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
+
 	name := "reg_permission_service"
-	serviceName := &pb.ServiceName{
-		Name: &name,
-	}
+	serviceName := NewServiceName(name)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
+
 	permissionName := "reg_permission"
-	permissionWithToken := &pb.TokenWithPermission{
-		Token: token.Token,
-		Permission: &permissionName,
-	}
+	permissionWithToken := NewTokenWithPermission(*token.Token, permissionName)
 
 	t.Run("success", func(t *testing.T) {
 		result, err := client.RegisterPermission(ctx, permissionWithToken)
@@ -295,31 +278,24 @@ func TestRegisterPermission(t *testing.T) {
 func TestUnregisterPermission(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
+	
 	name := "un_reg_permission_service"
-	serviceName := &pb.ServiceName{
-		Name: &name,
-	}
+	serviceName := NewServiceName(name)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
+
 	emptyName := "empty_permission_service"
-	emptyServiceName := &pb.ServiceName{
-		Name: &emptyName,
-	}
+	emptyServiceName := NewServiceName(emptyName)
 	emptyServiceToken, err := client.RegisterService(ctx, emptyServiceName)
 	utils.CheckError(err)
+
 	permissionName := "un_reg_permission"
-	permissionWithToken := &pb.TokenWithPermission{
-		Token: token.Token,
-		Permission: &permissionName,
-	}
+	permissionWithToken := NewTokenWithPermission(*token.Token, permissionName)
 	_, err = client.RegisterPermission(ctx, permissionWithToken)
 	utils.CheckError(err)
 
 	t.Run("faul if permission is not own by service", func(t *testing.T) {
-		emptyPermissionWithToken := &pb.TokenWithPermission{
-			Token: emptyServiceToken.Token,
-			Permission: &permissionName,
-		}
+		emptyPermissionWithToken := NewTokenWithPermission(*emptyServiceToken.Token, permissionName)
 		result, err := client.UnregisterPermission(ctx, emptyPermissionWithToken)
 		if result != nil || err == nil {
 			t.Fatalf("grpc.Server.UnregisterPermission success in not match service")
@@ -360,33 +336,25 @@ func TestAuthorize(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
 	name := "author_service"
-	serviceName := &pb.ServiceName{
-		Name: &name,
-	}
+	serviceName := NewServiceName(name)
 	serviceToken, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
 	permissionName := "author_permission"
-	permissionWithToken := &pb.TokenWithPermission{
-		Token: serviceToken.Token,
-		Permission: &permissionName,
-	}
+	permissionWithToken := NewTokenWithPermission(*serviceToken.Token, permissionName)
 	_, err = client.RegisterPermission(ctx, permissionWithToken)
 	utils.CheckError(err)
 
 	username := "author_username"
 	password := "password"
-	_, err = client.Signup(ctx, &pb.LoginParams{
-		Username: &username,
-		Password: &password,
-	})
+	_, err = client.Signup(ctx, NewLoginParams(username, password))
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
-		result, err := client.Authorize(ctx, &pb.AuthorizeParams{
-			Token: serviceToken.Token,
-			Username: &username,
-			Permission: &permissionName,
-		})
+		result, err := client.Authorize(ctx, NewAuthorizeParams(
+			*serviceToken.Token,
+			username,
+			permissionName,
+		))
 		if result == nil || err != nil || *result.Result != "success" {
 			t.Fatalf("grpc.Server.Authorize fail in normal flow: result - %v, err - %v",
 				result, err)
@@ -401,11 +369,11 @@ func TestAuthorize(t *testing.T) {
 	})
 
 	t.Run("fail if user already authenticated", func(t *testing.T) {
-		result, err := client.Authorize(ctx, &pb.AuthorizeParams{
-			Token: serviceToken.Token,
-			Username: &username,
-			Permission: &permissionName,
-		})
+		result, err := client.Authorize(ctx, NewAuthorizeParams(
+			*serviceToken.Token,
+			username,
+			permissionName,
+		))
 		if result != nil || err == nil {
 			t.Fatalf("grpc.Server.Authorize success for existing user permission: result - %v, err - %v",
 				result, err)
@@ -416,54 +384,43 @@ func TestAuthenticate(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
 	name := "authen_service"
-	serviceName := &pb.ServiceName{
-		Name: &name,
-	}
+	serviceName := NewServiceName(name)
 	serviceToken, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
 	permissionName := "authen_permission"
-	permissionWithToken := &pb.TokenWithPermission{
-		Token: serviceToken.Token,
-		Permission: &permissionName,
-	}
+	permissionWithToken := NewTokenWithPermission(*serviceToken.Token, permissionName)
 	_, err = client.RegisterPermission(ctx, permissionWithToken)
 	utils.CheckError(err)
 
 	username := "authen_username"
 	password := "password"
-	userToken, err := client.Signup(ctx, &pb.LoginParams{
-		Username: &username,
-		Password: &password,
-	})
+	userToken, err := client.Signup(ctx, NewLoginParams(username, password))
 	username2 := "no_authen_username"
 	password2 := "password"
-	userToken2, err := client.Signup(ctx, &pb.LoginParams{
-		Username: &username2,
-		Password: &password2,
-	})
+	userToken2, err := client.Signup(ctx, NewLoginParams(username2, password2))
 	utils.CheckError(err)
-	_, err = client.Authorize(ctx, &pb.AuthorizeParams{
-		Token: serviceToken.Token,
-		Username: &username,
-		Permission: &permissionName,
-	})
+	_, err = client.Authorize(ctx, NewAuthorizeParams(
+		*serviceToken.Token,
+		username,
+		permissionName,
+	))
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
-		result, err := client.Authenticate(ctx, &pb.TokenWithPermission{
-			Token: userToken.Token,
-			Permission: &permissionName,
-		})
+		result, err := client.Authenticate(ctx, NewTokenWithPermission(
+			*userToken.Token,
+			permissionName,
+		))
 		if result == nil || err != nil || *result.Result != "success" {
 			t.Fatalf("grpc.Server.Authenticate fail in normal flow")
 		}
 	})
 
 	t.Run("fail if user have no permission", func(t *testing.T) {
-		result, err := client.Authenticate(ctx, &pb.TokenWithPermission{
-			Token: userToken2.Token,
-			Permission: &permissionName,
-		})
+		result, err := client.Authenticate(ctx, NewTokenWithPermission(
+			*userToken2.Token,
+			permissionName,
+		))
 		if result != nil || err == nil {
 			t.Fatalf("grpc.Server.Authenticate success for user have no permission")
 		}
