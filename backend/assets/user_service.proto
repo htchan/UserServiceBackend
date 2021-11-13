@@ -45,7 +45,3 @@ message TokenWithPermission {
   required string token = 1;
   required string permission = 2;
 }
-
-message Permission {
-  required string premission = 1;
-}
