@@ -10,16 +10,17 @@ import (
 var wg sync.WaitGroup
 
 const (
-	port = 8000
+	grpcPort = 8000
+	httpPort = 8080
 )
 
 func startGRPC() {
-	grpc.StartServer(port)
+	grpc.StartServer(fmt.Sprintf("0.0.0.0:%v", grpcPort))
 	wg.Done()
 }
 
 func startHTTP() {
-	http.StartServer()
+	http.StartServer(fmt.SPrintf("0.0.0.0:%v", httpPort))
 	wg.Done()
 
 }
