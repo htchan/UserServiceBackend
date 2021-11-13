@@ -16,7 +16,12 @@ type UserToken struct {
 
 func generateUserToken(username string, duration int) *UserToken {
 	userToken := new(UserToken)
-	userToken.Token = utils.RandomString(64)
+	for true {
+		userToken.Token = utils.RandomString(64)
+		if _, err := FindUserTokenByTokenStr(userToken.Token); err != nil {
+			break
+		}
+	}
 	userToken.Username = username
 	userToken.generateDate = time.Now().Unix()
 	userToken.duration = duration

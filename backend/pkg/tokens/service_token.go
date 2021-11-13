@@ -12,7 +12,12 @@ type ServiceToken struct {
 
 func generateServiceToken(service services.Service) *ServiceToken {
 	serviceToken := new(ServiceToken)
-	serviceToken.Token = utils.RandomString(64)
+	for true {
+		serviceToken.Token = utils.RandomString(64)
+		if _, err := FindUserTokenByTokenStr(serviceToken.Token); err != nil {
+			break
+		}
+	}
 	serviceToken.serviceName = service.Name
 	return serviceToken
 }
