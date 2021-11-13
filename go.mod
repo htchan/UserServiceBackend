@@ -1,4 +1,4 @@
-module github.com/htchan/UserService/backend
+module github.com/htchan/UserService
 
 go 1.17
 
