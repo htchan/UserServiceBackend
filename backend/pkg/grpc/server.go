@@ -4,25 +4,17 @@ import (
 	"context"
 	goGrpc"google.golang.org/grpc"
 	"github.com/htchan/UserService/internal/grpc"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	"github.com/htchan/UserService/pkg/users"
 	"github.com/htchan/UserService/pkg/services"
 	"github.com/htchan/UserService/pkg/tokens"
 	"github.com/htchan/UserService/pkg/permissions"
 	"log"
 	"net"
-	"fmt"
 )
 
 type Server struct {
 	grpc.UnimplementedUserServiceServer
 }
-
-
-// Authenticate(ctx context.Context, in *grpc.TokenWithPermission) (*grpc.Result, error)
-// Authorize(ctx context.Context, in *grpc.AuthorizeParams) (*grpc.Result, error)
-// RegisterPermission(ctx context.Context, in *grpc.TokenWithPermission) (*grpc.Result, error)
-// UnregisterPermission(ctx context.Context, in *grpc.TokenWithPermission) (*grpc.Result, error)
 
 func (server *Server) Signup(ctx context.Context, in *grpc.LoginParams) (*grpc.AuthToken, error) {
 	user, err := users.Signup(*in.Username, *in.Password)
@@ -38,7 +30,7 @@ func (server *Server) Signup(ctx context.Context, in *grpc.LoginParams) (*grpc.A
 	return token, nil
 }
 
-func (server *Server) DropOut(ctx context.Context, in *grpc.AuthToken) (*grpc.Result, error) {
+func (server *Server) Dropout(ctx context.Context, in *grpc.AuthToken) (*grpc.Result, error) {
 	user, err := tokens.FindUserByTokenStr(*in.Token)
 	if err != nil {
 		return nil, err
@@ -77,7 +69,7 @@ func (server *Server) Login(ctx context.Context, in *grpc.LoginParams) (*grpc.Au
 	return token, nil
 }
 
-func (server *Server) Logout(ctx context.Context, in *grpc.AuthToken) (*emptypb.Empty, error) {
+func (server *Server) Logout(ctx context.Context, in *grpc.AuthToken) (*grpc.Result, error) {
 	token, err := tokens.FindUserTokenByTokenStr(*in.Token)
 	if err != nil {
 		return nil, err
@@ -86,7 +78,8 @@ func (server *Server) Logout(ctx context.Context, in *grpc.AuthToken) (*emptypb.
 	if err != nil {
 		return nil, err
 	}
-	return new(emptypb.Empty), nil
+	s := "success"
+	return &grpc.Result{Result: &s}, nil
 }
 
 func (server *Server) RegisterService(ctx context.Context, in *grpc.ServiceName) (*grpc.AuthToken, error) {
@@ -146,7 +139,6 @@ func (server *Server) UnregisterPermission(ctx context.Context, in *grpc.TokenWi
 	return &grpc.Result{Result: &s}, nil
 }
 
-
 func (server *Server) Authenticate(ctx context.Context, in *grpc.TokenWithPermission) (*grpc.Result, error) {
 	// check user has permission
 	user, err := tokens.FindUserByTokenStr(*in.Token)
@@ -175,13 +167,16 @@ func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (
 	if err != nil {
 		return nil, err
 	}
-	permissions.GrantPermission(*user, *servicePermission)
+	err = permissions.GrantPermission(*user, *servicePermission)
+	if err != nil {
+		return nil, err
+	}
 	s := "success"
 	return &grpc.Result{Result: &s}, nil
 }
 
-func StartServer(port int) {
-	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%v", port))
+func StartServer(addr string) {
+	listen, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

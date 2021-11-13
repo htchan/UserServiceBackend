@@ -7,7 +7,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,9 +19,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	Signup(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*AuthToken, error)
-	DropOut(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
+	Dropout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
 	Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*AuthToken, error)
-	Logout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Logout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
 	RegisterService(ctx context.Context, in *ServiceName, opts ...grpc.CallOption) (*AuthToken, error)
 	UnregisterService(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
 	Authenticate(ctx context.Context, in *TokenWithPermission, opts ...grpc.CallOption) (*Result, error)
@@ -48,9 +47,9 @@ func (c *userServiceClient) Signup(ctx context.Context, in *LoginParams, opts ..
 	return out, nil
 }
 
-func (c *userServiceClient) DropOut(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error) {
+func (c *userServiceClient) Dropout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/grpc.UserService/DropOut", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/grpc.UserService/Dropout", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,8 +65,8 @@ func (c *userServiceClient) Login(ctx context.Context, in *LoginParams, opts ...
 	return out, nil
 }
 
-func (c *userServiceClient) Logout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *userServiceClient) Logout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
 	err := c.cc.Invoke(ctx, "/grpc.UserService/Logout", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -134,9 +133,9 @@ func (c *userServiceClient) UnregisterPermission(ctx context.Context, in *TokenW
 // for forward compatibility
 type UserServiceServer interface {
 	Signup(context.Context, *LoginParams) (*AuthToken, error)
-	DropOut(context.Context, *AuthToken) (*Result, error)
+	Dropout(context.Context, *AuthToken) (*Result, error)
 	Login(context.Context, *LoginParams) (*AuthToken, error)
-	Logout(context.Context, *AuthToken) (*emptypb.Empty, error)
+	Logout(context.Context, *AuthToken) (*Result, error)
 	RegisterService(context.Context, *ServiceName) (*AuthToken, error)
 	UnregisterService(context.Context, *AuthToken) (*Result, error)
 	Authenticate(context.Context, *TokenWithPermission) (*Result, error)
@@ -153,13 +152,13 @@ type UnimplementedUserServiceServer struct {
 func (UnimplementedUserServiceServer) Signup(context.Context, *LoginParams) (*AuthToken, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Signup not implemented")
 }
-func (UnimplementedUserServiceServer) DropOut(context.Context, *AuthToken) (*Result, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DropOut not implemented")
+func (UnimplementedUserServiceServer) Dropout(context.Context, *AuthToken) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Dropout not implemented")
 }
 func (UnimplementedUserServiceServer) Login(context.Context, *LoginParams) (*AuthToken, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedUserServiceServer) Logout(context.Context, *AuthToken) (*emptypb.Empty, error) {
+func (UnimplementedUserServiceServer) Logout(context.Context, *AuthToken) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
 func (UnimplementedUserServiceServer) RegisterService(context.Context, *ServiceName) (*AuthToken, error) {
@@ -211,20 +210,20 @@ func _UserService_Signup_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_DropOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserService_Dropout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AuthToken)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).DropOut(ctx, in)
+		return srv.(UserServiceServer).Dropout(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/grpc.UserService/DropOut",
+		FullMethod: "/grpc.UserService/Dropout",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).DropOut(ctx, req.(*AuthToken))
+		return srv.(UserServiceServer).Dropout(ctx, req.(*AuthToken))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -385,8 +384,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_Signup_Handler,
 		},
 		{
-			MethodName: "DropOut",
-			Handler:    _UserService_DropOut_Handler,
+			MethodName: "Dropout",
+			Handler:    _UserService_Dropout_Handler,
 		},
 		{
 			MethodName: "Login",

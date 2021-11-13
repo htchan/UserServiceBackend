@@ -7,9 +7,9 @@ package grpc;
 
 service UserService {
   rpc Signup (LoginParams) returns (AuthToken) {}
-  rpc DropOut (AuthToken) returns (Result) {}
+  rpc Dropout (AuthToken) returns (Result) {}
   rpc Login (LoginParams) returns (AuthToken) {}
-  rpc Logout (AuthToken) returns (google.protobuf.Empty) {}
+  rpc Logout (AuthToken) returns (Result) {}
   rpc RegisterService (ServiceName) returns (AuthToken) {}
   rpc UnregisterService (AuthToken) returns (Result) {}
   rpc Authenticate (TokenWithPermission) returns (Result) {}

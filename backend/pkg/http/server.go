@@ -57,9 +57,9 @@ func logout(res http.ResponseWriter, req *http.Request) {
 	})
 }
 
-func StartServer() {
+func StartServer(addr string) {
 	http.HandleFunc("api/users/login", login)
 	http.HandleFunc("api/users/logout", logout)
 	log.Println("http started")
-	log.Fatal(http.ListenAndServe(":9000", nil))
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
