@@ -8,10 +8,8 @@ COPY ./go.sum .
 RUN apk add gcc musl-dev libc-dev make
 RUN go mod download
 
-COPY ./assets ./assets
-COPY ./internal ./internal
-COPY ./pkg ./pkg
-COPY ./cmd ./cmd
-COPY ./test ./test
-
-COPY ./scripts ./scripts
+COPY ./assets ./backend/assets
+COPY ./internal ./backend/internal
+COPY ./pkg ./backend/pkg
+COPY ./cmd ./backend/cmd
+COPY ./test ./backend/test
