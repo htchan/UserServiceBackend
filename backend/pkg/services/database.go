@@ -10,7 +10,8 @@ func (service Service) create() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("insert into services (name) values(?)", service.Name)
+	_, err = tx.Exec("insert into services (uuid, name) values(?, ?)",
+		service.UUID, service.Name)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -23,7 +24,7 @@ func (service Service) delete() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("delete from services where name=?", service.Name)
+	_, err = tx.Exec("delete from services where uuid=?", service.UUID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -37,13 +38,32 @@ func FindServiceByName(serviceName string) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := tx.Query("select name from services where name=?", serviceName)
+	rows, err := tx.Query("select uuid, name from services where name=?", serviceName)
 	if err != nil {
 		return nil, err
 	}
 	if rows.Next() {
 		service := new(Service)
-		rows.Scan(&service.Name)
+		rows.Scan(&service.UUID, &service.Name)
+		return service, nil
+	}
+	return nil, errors.New("service not found")
+}
+
+func FindServiceByUUID(uuid string) (*Service, error) {
+	tx, err := utils.GetDB().Begin()
+	defer tx.Rollback()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := tx.Query("select uuid, name from services where uuid=?",
+		uuid)
+	if err != nil {
+		return nil, err
+	}
+	if rows.Next() {
+		service := new(Service)
+		rows.Scan(&service.UUID, &service.Name)
 		return service, nil
 	}
 	return nil, errors.New("service not found")

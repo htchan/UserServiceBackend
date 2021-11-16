@@ -23,7 +23,8 @@ func TestRegisterService(t *testing.T) {
 	defer utils.CloseDB()
 	t.Run("success", func(t *testing.T) {
 		service, err := RegisterService("reg_service")
-		if service == nil || err != nil {
+		if service == nil || err != nil ||
+			service.Name != "reg_service" || service.UUID == "" {
 			t.Fatalf("services.RegisterService return service %v, error %v",
 				service, err)
 		}

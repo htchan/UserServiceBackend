@@ -1,11 +1,12 @@
 create table users (
-    username varchar(256) primary key,
+    uuid varchar(64) primary key,
+    username varchar(256) unique,
     password text
 );
-
-create unique index users__username on users(username);
+create unique index users__uuid on users(uuid);
 
 create table services (
+    uuid varchar(64),
     name varchar(256)
 );
 

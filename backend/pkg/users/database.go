@@ -10,8 +10,8 @@ func (user User) create() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("insert into users (username, password) values (?, ?)",
-		user.Username, user.encryptedPassword)
+	_, err = tx.Exec("insert into users (uuid, username, password) values (?, ?, ?)",
+		user.UUID, user.Username, user.encryptedPassword)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -37,7 +37,7 @@ func (user User) update() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("update users set password=? where username=?",
+	_, err = tx.Exec("update users set password=? where uuid=?",
 		user.Username, user.encryptedPassword)
 	if err != nil {
 		tx.Rollback()
@@ -52,7 +52,7 @@ func FindUserByName(username string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := tx.Query("select password from users where username=?",
+	rows, err := tx.Query("select uuid, password from users where username=?",
 		username)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,27 @@ func FindUserByName(username string) (*User, error) {
 	if rows.Next() {
 		user := new(User)
 		user.Username = username
-		rows.Scan(&user.encryptedPassword)
+		rows.Scan(&user.UUID, &user.encryptedPassword)
+		return user, nil
+	}
+	return nil, errors.New("invalid username / password")
+}
+
+func FindUserByUUID(uuid string) (*User, error) {
+	tx, err := utils.GetDB().Begin()
+	defer tx.Rollback()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := tx.Query("select username, password from users where uuid=?",
+		uuid)
+	if err != nil {
+		return nil, err
+	}
+	if rows.Next() {
+		user := new(User)
+		user.UUID = uuid
+		rows.Scan(&user.Username, &user.encryptedPassword)
 		return user, nil
 	}
 	return nil, errors.New("invalid username / password")

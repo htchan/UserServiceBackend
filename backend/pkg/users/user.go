@@ -2,19 +2,20 @@ package users
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	// "github.com/htchan/UserService/backend/internal/utils"
 )
 
 type User struct {
+	UUID string
 	Username string
 	encryptedPassword string
-	CreatedAt int
-	UpdatedAt int
 }
 
 func newUser(username, password string) (*User, error) {
 	user := new(User)
 	var err error
+	user.UUID = uuid.NewString()
 	user.Username = username
 	user.encryptedPassword, err = hashPassword(password)
 	return user, err

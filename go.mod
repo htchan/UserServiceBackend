@@ -3,6 +3,7 @@ module github.com/htchan/UserService
 go 1.17
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/mattn/go-sqlite3 v1.14.9
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	google.golang.org/grpc v1.41.0

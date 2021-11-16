@@ -25,7 +25,8 @@ func Test_newUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		user, err := newUser("username", "password")
 		if user == nil || err != nil || user.Username != "username" ||
-			!checkPasswordHash("password", user.encryptedPassword) {
+			!checkPasswordHash("password", user.encryptedPassword) ||
+			user.UUID == "" {
 			t.Fatalf("user.newUser(\"username\", \"password\") return user: %v, err: %v",
 				user, err)
 		}
@@ -38,7 +39,8 @@ func TestSignup(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		user, err := Signup("signup_user", "password")
-		if user == nil || err != nil || user.Username != "signup_user" {
+		if user == nil || err != nil ||
+			user.Username != "signup_user" || user.UUID == "" {
 			t.Fatalf("user.SignUp(\"signup_user\", \"password\") return user: %v, err: %v",
 				user, err)
 		}
