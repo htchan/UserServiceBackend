@@ -6,7 +6,7 @@ import (
 )
 
 type UserPermission struct {
-	username, Permission string
+	userUUID, Permission string
 }
 
 func GrantPermission(user users.User, permission ServicePermission) error {
@@ -14,7 +14,7 @@ func GrantPermission(user users.User, permission ServicePermission) error {
 		return errors.New("permission already grant")
 	}
 	userPermission := new(UserPermission)
-	userPermission.username = user.Username
+	userPermission.userUUID = user.UUID
 	userPermission.Permission = permission.Permission
 	return userPermission.create()
 }

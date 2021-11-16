@@ -12,8 +12,8 @@ func (userPermission UserPermission) create() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("insert into user_permissions (username, permission) values (?, ?)",
-		userPermission.username, userPermission.Permission)
+	_, err = tx.Exec("insert into user_permissions (user_uuid, permission) values (?, ?)",
+		userPermission.userUUID, userPermission.Permission)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -26,8 +26,8 @@ func (userPermission UserPermission) delete() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("delete from user_permissions where username=? and permission=?",
-		userPermission.username, userPermission.Permission)
+	_, err = tx.Exec("delete from user_permissions where user_uuid=? and permission=?",
+		userPermission.userUUID, userPermission.Permission)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -41,15 +41,15 @@ func FindUserPermissionsByUser(user users.User) ([]UserPermission, error) {
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query("select username, permission from user_permissions where username=?",
-		user.Username)
+	rows, err := tx.Query("select user_uuid, permission from user_permissions where user_uuid=?",
+		user.UUID)
 	if err != nil {
 		return nil, err
 	}
 	permissions := make([]UserPermission, 0)
 	for rows.Next() {
 		userPermission := new(UserPermission)
-		rows.Scan(&userPermission.username, &userPermission.Permission)
+		rows.Scan(&userPermission.userUUID, &userPermission.Permission)
 		permissions = append(permissions, *userPermission)
 	}
 	return permissions, nil
@@ -61,14 +61,14 @@ func FindUserPermissionByPermission(user users.User, permissionStr string) (*Use
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query("select username, permission from user_permissions where username=? and permission=?",
-		user.Username, permissionStr)
+	rows, err := tx.Query("select user_uuid, permission from user_permissions where user_uuid=? and permission=?",
+		user.UUID, permissionStr)
 	if err != nil {
 		return nil, err
 	}
 	if rows.Next() {
 		userPermission := new(UserPermission)
-		rows.Scan(&userPermission.username, &userPermission.Permission)
+		rows.Scan(&userPermission.userUUID, &userPermission.Permission)
 		return userPermission, nil
 	}
 	return nil, errors.New("permission not found")
@@ -79,8 +79,8 @@ func (servicePermission ServicePermission) create() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("insert into service_permissions (service_name, permission) values (?, ?)",
-		servicePermission.serviceName, servicePermission.Permission)
+	_, err = tx.Exec("insert into service_permissions (service_uuid, permission) values (?, ?)",
+		servicePermission.serviceUUID, servicePermission.Permission)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -115,15 +115,15 @@ func FindServicePermissionsByService(service services.Service) ([]ServicePermiss
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query("select service_name, permission from service_permissions where service_name=?",
-		service.Name)
+	rows, err := tx.Query("select service_uuid, permission from service_permissions where service_uuid=?",
+		service.UUID)
 	if err != nil {
 		return nil, err
 	}
 	permissions := make([]ServicePermission, 0)
 	for rows.Next() {
 		servicePermission := new(ServicePermission)
-		rows.Scan(&servicePermission.serviceName, &servicePermission.Permission)
+		rows.Scan(&servicePermission.serviceUUID, &servicePermission.Permission)
 		permissions = append(permissions, *servicePermission)
 	}
 	return permissions, nil
@@ -135,14 +135,14 @@ func FindServicePermissionByPermission(service services.Service, permissionStr s
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query("select service_name, permission from service_permissions where permission=? and service_name=?",
-		permissionStr, service.Name)
+	rows, err := tx.Query("select service_uuid, permission from service_permissions where permission=? and service_uuid=?",
+		permissionStr, service.UUID)
 	if err != nil {
 		return nil, err
 	}
 	if rows.Next() {
 		servicePermission := new(ServicePermission)
-		rows.Scan(&servicePermission.serviceName, &servicePermission.Permission)
+		rows.Scan(&servicePermission.serviceUUID, &servicePermission.Permission)
 		return servicePermission, nil
 	}
 	return nil, errors.New("permission not found")

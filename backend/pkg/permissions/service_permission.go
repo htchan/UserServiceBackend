@@ -6,7 +6,7 @@ import (
 )
 
 type ServicePermission struct {
-	serviceName, Permission string
+	serviceUUID, Permission string
 }
 
 func RegisterPermission(service services.Service, permissionStr string) (*ServicePermission, error) {
@@ -14,7 +14,7 @@ func RegisterPermission(service services.Service, permissionStr string) (*Servic
 		return nil, errors.New("permission already registered")
 	}
 	permission := new(ServicePermission)
-	permission.serviceName = service.Name
+	permission.serviceUUID = service.UUID
 	permission.Permission = permissionStr
 	err := permission.create()
 	if err != nil {

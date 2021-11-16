@@ -33,13 +33,13 @@ create unique index service_tokens__service_uuid on service_tokens(service_uuid)
 create unique index service_tokens__token on service_tokens(token);
 
 create table user_permissions (
-    username varchar(256),
+    user_uuid varchar(64),
     permission text
 );
 
 create table service_permissions (
-    service_name varchar(256),
-    permission text
+    service_uuid varchar(64),
+    permission text primary key
 );
 
 create unique index service_permissions__permission on service_permissions(permission);

@@ -28,13 +28,13 @@ func TestRegisterPermission(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		permission, err := RegisterPermission(*service, "permission")
-		if permission == nil || err != nil || permission.serviceName != "reg_service" {
+		if permission == nil || err != nil || permission.serviceUUID == "" {
 			t.Fatalf("permissions.RegisterPermission() returns permission: %v, error: %v",
 				permission, err)
 		}
 		resultPermission, err := FindServicePermissionByPermission(*service, "permission")
 		utils.CheckError(err)
-		if resultPermission.Permission != permission.Permission || resultPermission.serviceName != permission.serviceName {
+		if resultPermission.Permission != permission.Permission || resultPermission.serviceUUID != permission.serviceUUID {
 			t.Fatalf("permissions.RegisterPermissions() does not save permission")
 		}
 	})
