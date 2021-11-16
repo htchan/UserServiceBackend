@@ -27,7 +27,7 @@ func Test_generateServiceToken(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		serviceToken := generateServiceToken(*service)
-		if serviceToken.serviceName != "generate_token" || len(serviceToken.Token) != 64 {
+		if serviceToken.serviceUUID == "" || len(serviceToken.Token) != 64 {
 			t.Fatalf("tokens.generateServiceToken() returns serviec token %v", serviceToken)
 		}
 	})
@@ -48,7 +48,7 @@ func TestLoadServiceToken(t *testing.T) {
 			t.Fatalf("tokens.LoadServiceToken() returns service token %v, err %v",
 				actualServiceToken, err)
 		}
-		if actualServiceToken.serviceName != "owner_token" || actualServiceToken.Token != serviceToken.Token {
+		if actualServiceToken.serviceUUID == "" || actualServiceToken.Token != serviceToken.Token {
 			t.Fatalf("actual token %v\ndifferent from\nexpect token %v",
 				actualServiceToken, serviceToken)
 		}
@@ -58,7 +58,9 @@ func TestLoadServiceToken(t *testing.T) {
 		service, err := services.RegisterService("load_token")
 		utils.CheckError(err)
 		actualServiceToken, err := LoadServiceToken(*service)
-		if actualServiceToken == nil || err != nil || actualServiceToken.serviceName != "load_token" || len(actualServiceToken.Token) != 64 {
+		if actualServiceToken == nil || err != nil ||
+			actualServiceToken.serviceUUID == "" ||
+			len(actualServiceToken.Token) != 64 {
 			t.Fatalf("tokens.LoadServiceToken() returns service token %v, err %v",
 				actualServiceToken, err)
 		}

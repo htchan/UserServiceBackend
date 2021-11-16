@@ -6,7 +6,7 @@ import (
 )
 
 type ServiceToken struct {
-	serviceName string
+	serviceUUID string
 	Token string
 }
 
@@ -18,7 +18,7 @@ func generateServiceToken(service services.Service) *ServiceToken {
 			break
 		}
 	}
-	serviceToken.serviceName = service.Name
+	serviceToken.serviceUUID = service.UUID
 	return serviceToken
 }
 
@@ -41,7 +41,7 @@ func DeleteServiceTokens(service services.Service) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("delete from service_tokens where service_name=?", service.Name)
+	_, err = tx.Exec("delete from service_tokens where service_uuid=?", service.UUID)
 	if err != nil {
 		return err
 	}

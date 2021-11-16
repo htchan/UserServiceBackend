@@ -21,11 +21,17 @@ func init() {
 }
 
 func Test_generateToken(t *testing.T) {
+	utils.OpenDB("../../test/tokens/user-token-test-data.db")
+	defer utils.CloseDB()
+
+	user, err := users.Signup("username", "password")
+	utils.CheckError(err)
+
 	t.Run("success", func(t *testing.T) {
-		token := generateUserToken("username", 100)
-		if token.Token == "" || token.Username != "username" ||
+		token := generateUserToken(*user, 100)
+		if token.Token == "" || token.userUUID != user.UUID ||
 			token.duration != 100 {
-			t.Fatalf("tokens.generateUserToken(\"username\", 100) return wrong token")
+			t.Fatalf("tokens.generateUserToken return wrong token in normal flow")
 		}
 	})
 }
@@ -36,13 +42,16 @@ func TestLoadUserToken(t *testing.T) {
 	t.Run("user already have token", func(t *testing.T) {
 		user, err := users.Signup("token_owner", "password")
 		utils.CheckError(err)
-		token := generateUserToken("token_owner", 10)
+		token := generateUserToken(*user, 10)
+		if token == nil {
+			panic("token is null")
+		}
 		token.create()
 		
 		resultToken, err := LoadUserToken(*user, 100)
 		if err != nil || resultToken.Token != token.Token {
 			t.Fatalf("tokens.LoadUserToken returns wrong token\nexpect: %v\nactual: %v\nerror: %v",
-				token.Token, resultToken.Token, err)
+				token, resultToken, err)
 		}
 	})
 
@@ -67,7 +76,7 @@ func TestLoadUserToken(t *testing.T) {
 		resultToken, err := LoadUserToken(*user, 100)
 		if err != nil || resultToken.generateDate < now.Unix() || resultToken.Token == token.Token {
 			t.Fatalf("tokens.LoadUserToken returns old generated token: %v, error: %v",
-				resultToken.Token, err)
+				resultToken, err)
 		}
 		checkToken, err := FindUserTokenByTokenStr(token.Token)
 		if checkToken != nil || err == nil {
@@ -80,7 +89,7 @@ func TestDeleteUserTokens(t *testing.T) {
 	utils.OpenDB("../../test/tokens/user-token-test-data.db")
 	defer utils.CloseDB()
 	user, err := users.Signup("DeleteUsername", "password")
-	token := generateUserToken("DeleteUsername", 100)
+	token := generateUserToken(*user, 100)
 	err = token.create()
 	utils.CheckError(err)
 	emptyUser, err := users.Signup("empty_user", "password")

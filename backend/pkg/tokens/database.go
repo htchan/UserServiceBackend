@@ -12,8 +12,9 @@ func (userToken UserToken) create() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("insert into user_tokens (username, token, created_date, duration) values (?, ?, ?, ?)",
-		userToken.Username, userToken.Token, userToken.generateDate, userToken.duration)
+	_, err = tx.Exec("insert into user_tokens (user_uuid, token, created_date, duration) values (?, ?, ?, ?)",
+		userToken.userUUID, userToken.Token, userToken.generateDate,
+		userToken.duration)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -26,8 +27,8 @@ func (userToken UserToken) delete() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("delete from user_tokens where username=? and token=?",
-		userToken.Username, userToken.Token)
+	_, err = tx.Exec("delete from user_tokens where user_uuid=? and token=?",
+		userToken.userUUID, userToken.Token)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -41,7 +42,7 @@ func FindUserTokenByTokenStr(tokenStr string) (*UserToken, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := tx.Query("select username, created_date, duration from user_tokens where token=?",
+	rows, err := tx.Query("select user_uuid, created_date, duration from user_tokens where token=?",
 		tokenStr)
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func FindUserTokenByTokenStr(tokenStr string) (*UserToken, error) {
 	if rows.Next() {
 		userToken := new(UserToken)
 		userToken.Token = tokenStr
-		rows.Scan(&userToken.Username, &userToken.generateDate, &userToken.duration)
+		rows.Scan(&userToken.userUUID, &userToken.generateDate, &userToken.duration)
 		return userToken, nil
 	}
 	return nil, errors.New("invalid token")
@@ -61,14 +62,14 @@ func FindUserTokenByUser(user users.User) (*UserToken, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := tx.Query("select token, created_date, duration from user_tokens where username=?",
-		user.Username)
+	rows, err := tx.Query("select token, created_date, duration from user_tokens where user_uuid=?",
+		user.UUID)
 	if err != nil {
 		return nil, err
 	}
 	if rows.Next() {
 		userToken := new(UserToken)
-		userToken.Username = user.Username
+		userToken.userUUID = user.UUID
 		rows.Scan(&userToken.Token, &userToken.generateDate, &userToken.duration)
 		return userToken, nil
 	}
@@ -80,7 +81,7 @@ func FindUserByTokenStr(tokenStr string) (*users.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return users.FindUserByName(token.Username)
+	return users.FindUserByUUID(token.userUUID)
 }
 
 func (serviceToken ServiceToken) create() error {
@@ -88,8 +89,8 @@ func (serviceToken ServiceToken) create() error {
 	if err != nil {
 		return nil
 	}
-	_, err = tx.Exec("insert into service_tokens (service_name, token) values (?, ?)",
-		serviceToken.serviceName, serviceToken.Token)
+	_, err = tx.Exec("insert into service_tokens (service_uuid, token) values (?, ?)",
+		serviceToken.serviceUUID, serviceToken.Token)
 	if err != nil {
 		return nil
 	}
@@ -113,8 +114,8 @@ func (serviceToken ServiceToken) update() error {
 	if err != nil {
 		return nil
 	}
-	_, err = tx.Exec("update service_tokens set token=? where service_name=?",
-		serviceToken.Token, serviceToken.serviceName)
+	_, err = tx.Exec("update service_tokens set token=? where service_uuid=?",
+		serviceToken.Token, serviceToken.serviceUUID)
 	if err != nil {
 		return nil
 	}
@@ -127,7 +128,7 @@ func FindServiceTokenByTokenStr(tokenStr string) (*ServiceToken, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := tx.Query("select service_name from service_tokens where token=?",
+	rows, err := tx.Query("select service_uuid from service_tokens where token=?",
 		tokenStr)
 	if err != nil {
 		return nil, err
@@ -135,7 +136,7 @@ func FindServiceTokenByTokenStr(tokenStr string) (*ServiceToken, error) {
 	if rows.Next() {
 		serviceToken := new(ServiceToken)
 		serviceToken.Token = tokenStr
-		rows.Scan(&serviceToken.serviceName)
+		rows.Scan(&serviceToken.serviceUUID)
 		return serviceToken, nil
 	}
 	return nil, errors.New("invalid token")
@@ -147,14 +148,14 @@ func FindServiceTokenByService(service services.Service) (*ServiceToken, error) 
 	if err != nil {
 		return nil, err
 	}
-	rows, err := tx.Query("select token from service_tokens where service_name=?",
-		service.Name)
+	rows, err := tx.Query("select token from service_tokens where service_uuid=?",
+		service.UUID)
 	if err != nil {
 		return nil, err
 	}
 	if rows.Next() {
 		serviceToken := new(ServiceToken)
-		serviceToken.serviceName = service.Name
+		serviceToken.serviceUUID = service.UUID
 		rows.Scan(&serviceToken.Token)
 		return serviceToken, nil
 	}
@@ -166,5 +167,5 @@ func FindServiceByTokenStr(tokenStr string) (*services.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	return services.FindServiceByName(token.serviceName)
+	return services.FindServiceByUUID(token.serviceUUID)
 }

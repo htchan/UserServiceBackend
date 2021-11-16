@@ -4,30 +4,32 @@ create table users (
     password text
 );
 create unique index users__uuid on users(uuid);
+create unique index users__username on users(username);
 
 create table services (
-    uuid varchar(64),
-    name varchar(256)
+    uuid varchar(64) primary key,
+    name varchar(256) unique
 );
 
 create unique index services__name on services(name);
+create unique index services__uuid on services(uuid);
 
 create table user_tokens (
-    username varchar(256) unique,
+    user_uuid varchar(64) unique,
     token text unique,
     created_date int,
     duration int
 );
 
-create unique index user_tokens__username on user_tokens(username);
+create unique index user_tokens__uuid on user_tokens(uuid);
 create unique index user_tokens__token on user_tokens(token);
 
 create table service_tokens (
-    service_name varchar(256),
+    service_uuid varchar(64) unique,
     token text unique
 );
 
-create unique index service_tokens__service_name on service_tokens(service_name);
+create unique index service_tokens__service_uuid on service_tokens(service_uuid);
 create unique index service_tokens__token on service_tokens(token);
 
 create table user_permissions (

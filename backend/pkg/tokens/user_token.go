@@ -9,12 +9,12 @@ import (
 
 type UserToken struct {
 	Token string
-	Username string
+	userUUID string
 	generateDate int64
 	duration int
 }
 
-func generateUserToken(username string, duration int) *UserToken {
+func generateUserToken(user users.User, duration int) *UserToken {
 	userToken := new(UserToken)
 	for true {
 		userToken.Token = utils.RandomString(64)
@@ -22,7 +22,7 @@ func generateUserToken(username string, duration int) *UserToken {
 			break
 		}
 	}
-	userToken.Username = username
+	userToken.userUUID = user.UUID
 	userToken.generateDate = time.Now().Unix()
 	userToken.duration = duration
 	return userToken
@@ -38,9 +38,12 @@ func LoadUserToken(user users.User, duration int) (*UserToken, error) {
 			return userToken, nil
 		}
 		// if token is expired then delete old token and generate a new one
-		userToken.delete()
+		err = userToken.delete()
+		if err != nil {
+			return nil, err
+		}
 	}
-	userToken = generateUserToken(user.Username, duration)
+	userToken = generateUserToken(user, duration)
 	err = userToken.create()
 	if err != nil {
 		return nil, err
@@ -54,7 +57,7 @@ func DeleteUserTokens(user users.User) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("delete from user_tokens where username=?", user.Username)
+	_, err = tx.Exec("delete from user_tokens where user_uuid=?", user.UUID)
 	if err != nil {
 		return err
 	}
