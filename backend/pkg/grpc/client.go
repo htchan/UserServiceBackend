@@ -22,10 +22,10 @@ func NewServiceName(name string) *pb.ServiceName {
 	}
 }
  
-func NewAuthorizeParams(token, username, permission string) *pb.AuthorizeParams {
+func NewAuthorizeParams(token, userUUID, permission string) *pb.AuthorizeParams {
 	return &pb.AuthorizeParams{
 		Token: &token,
-		Username: &username,
+		UserUUID: &userUUID,
 		Permission: &permission,
 	}
 }

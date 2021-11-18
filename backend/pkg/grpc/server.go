@@ -163,7 +163,7 @@ func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (
 	if err != nil {
 		return nil, err
 	}
-	user, err := users.FindUserByName(*in.Username)
+	user, err := users.FindUserByUUID(*in.UserUUID)
 	if err != nil {
 		return nil, err
 	}

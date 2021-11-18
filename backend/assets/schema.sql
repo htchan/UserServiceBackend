@@ -15,7 +15,7 @@ create unique index services__name on services(name);
 create unique index services__uuid on services(uuid);
 
 create table user_tokens (
-    user_uuid varchar(64) unique,
+    user_uuid varchar(64),
     token text unique,
     created_date int,
     duration int

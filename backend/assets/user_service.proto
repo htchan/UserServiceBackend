@@ -31,7 +31,7 @@ message ServiceName {
 
 message AuthorizeParams {
   required string token = 1;
-  required string username = 2;
+  required string userUUID = 2;
   required string permission = 3;
 }
 

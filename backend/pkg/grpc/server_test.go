@@ -346,13 +346,16 @@ func TestAuthorize(t *testing.T) {
 
 	username := "author_username"
 	password := "password"
-	_, err = client.Signup(ctx, NewLoginParams(username, password))
+	token, err := client.Signup(ctx, NewLoginParams(username, password))
+	utils.CheckError(err)
+
+	user, err := tokens.FindUserByTokenStr(*token.Token)
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
 		result, err := client.Authorize(ctx, NewAuthorizeParams(
 			*serviceToken.Token,
-			username,
+			user.UUID,
 			permissionName,
 		))
 		if result == nil || err != nil || *result.Result != "success" {
@@ -371,7 +374,7 @@ func TestAuthorize(t *testing.T) {
 	t.Run("fail if user already authenticated", func(t *testing.T) {
 		result, err := client.Authorize(ctx, NewAuthorizeParams(
 			*serviceToken.Token,
-			username,
+			user.UUID,
 			permissionName,
 		))
 		if result != nil || err == nil {
@@ -395,13 +398,17 @@ func TestAuthenticate(t *testing.T) {
 	username := "authen_username"
 	password := "password"
 	userToken, err := client.Signup(ctx, NewLoginParams(username, password))
+	utils.CheckError(err)
+	user, err := tokens.FindUserByTokenStr(*userToken.Token)
+	utils.CheckError(err)
+
 	username2 := "no_authen_username"
 	password2 := "password"
 	userToken2, err := client.Signup(ctx, NewLoginParams(username2, password2))
 	utils.CheckError(err)
 	_, err = client.Authorize(ctx, NewAuthorizeParams(
 		*serviceToken.Token,
-		username,
+		user.UUID,
 		permissionName,
 	))
 	utils.CheckError(err)
