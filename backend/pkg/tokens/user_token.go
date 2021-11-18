@@ -14,7 +14,7 @@ type UserToken struct {
 	duration int
 }
 
-func generateUserToken(user users.User, duration int) *UserToken {
+func generateUserToken(user *users.User, duration int) *UserToken {
 	userToken := new(UserToken)
 	for true {
 		userToken.Token = utils.RandomString(64)
@@ -28,7 +28,7 @@ func generateUserToken(user users.User, duration int) *UserToken {
 	return userToken
 }
 
-func LoadUserToken(user users.User, duration int) (*UserToken, error) {
+func LoadUserToken(user *users.User, duration int) (*UserToken, error) {
 	// if no token exist then generate a alphanumeric string between TOKEN_MIN_LEN and TOKEN_MAX_LEN
 	// if token exist and not expired then return the token
 	userToken, err := FindUserTokenByUser(user)
@@ -52,7 +52,7 @@ func LoadUserToken(user users.User, duration int) (*UserToken, error) {
 	}
 }
 
-func DeleteUserTokens(user users.User) error {
+func DeleteUserTokens(user *users.User) error {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return err

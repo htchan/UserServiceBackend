@@ -21,7 +21,7 @@ func (server *Server) Signup(ctx context.Context, in *grpc.LoginParams) (*grpc.A
 	if err != nil {
 		return nil, err
 	}
-	userToken, err := tokens.LoadUserToken(*user, 60*60*24)
+	userToken, err := tokens.LoadUserToken(user, 60*60*24)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (server *Server) Dropout(ctx context.Context, in *grpc.AuthToken) (*grpc.Re
 		return nil, err
 	}
 	// remove user's permission
-	userPermissions, err := permissions.FindUserPermissionsByUser(*user)
+	userPermissions, err := permissions.FindUserPermissionsByUser(user)
 	if err != nil {
 		return nil, err
 	}
@@ -44,9 +44,9 @@ func (server *Server) Dropout(ctx context.Context, in *grpc.AuthToken) (*grpc.Re
 		permissions.RevokePermission(permission)
 	}
 	// remove user's auth token
-	tokens.DeleteUserTokens(*user)
+	tokens.DeleteUserTokens(user)
 	// remove user in db
-	err = users.Dropout(*user)
+	err = users.Dropout(user)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (server *Server) Login(ctx context.Context, in *grpc.LoginParams) (*grpc.Au
 	if err != nil {
 		return nil, err
 	}
-	userToken, err := tokens.LoadUserToken(*user, 24 * 60)
+	userToken, err := tokens.LoadUserToken(user, 24 * 60)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (server *Server) RegisterService(ctx context.Context, in *grpc.ServiceName)
 	if err != nil {
 		return nil, err
 	}
-	serviceToken, err := tokens.LoadServiceToken(*service)
+	serviceToken, err := tokens.LoadServiceToken(service)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (server *Server) UnregisterService(ctx context.Context, in *grpc.AuthToken)
 	if err != nil {
 		return nil, err
 	}
-	err = services.UnregisterService(*service)
+	err = services.UnregisterService(service)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (server *Server) RegisterPermission(ctx context.Context, in *grpc.TokenWith
 	if err != nil {
 		return nil, err
 	}
-	_, err = permissions.RegisterPermission(*service, *in.Permission)
+	_, err = permissions.RegisterPermission(service, *in.Permission)
 	if err != nil {
 		return nil, err
 	}
@@ -127,11 +127,11 @@ func (server *Server) UnregisterPermission(ctx context.Context, in *grpc.TokenWi
 	if err != nil {
 		return nil, err
 	}
-	servicePermission, err := permissions.FindServicePermissionByPermission(*service, *in.Permission)
+	servicePermission, err := permissions.FindServicePermissionByPermission(service, *in.Permission)
 	if err != nil {
 		return nil, err
 	}
-	err = permissions.UnregisterPermission(*service, *servicePermission)
+	err = permissions.UnregisterPermission(service, servicePermission)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (server *Server) Authenticate(ctx context.Context, in *grpc.TokenWithPermis
 	if err != nil {
 		return nil, err
 	}
-	_, err = permissions.FindUserPermissionByPermission(*user, *in.Permission)
+	_, err = permissions.FindUserPermissionByPermission(user, *in.Permission)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (
 	if err != nil {
 		return nil, err
 	}
-	servicePermission, err := permissions.FindServicePermissionByPermission(*service, *in.Permission)
+	servicePermission, err := permissions.FindServicePermissionByPermission(service, *in.Permission)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (
 	if err != nil {
 		return nil, err
 	}
-	err = permissions.GrantPermission(*user, *servicePermission)
+	err = permissions.GrantPermission(user, servicePermission)
 	if err != nil {
 		return nil, err
 	}

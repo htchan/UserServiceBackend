@@ -26,7 +26,7 @@ func Test_generateServiceToken(t *testing.T) {
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
-		serviceToken := generateServiceToken(*service)
+		serviceToken := generateServiceToken(service)
 		if serviceToken.serviceUUID == "" || len(serviceToken.Token) != 64 {
 			t.Fatalf("tokens.generateServiceToken() returns serviec token %v", serviceToken)
 		}
@@ -40,10 +40,10 @@ func TestLoadServiceToken(t *testing.T) {
 	t.Run("success for existing service token", func(t *testing.T) {
 		service, err := services.RegisterService("owner_token")
 		utils.CheckError(err)
-		serviceToken := generateServiceToken(*service)
+		serviceToken := generateServiceToken(service)
 		err = serviceToken.create()
 		utils.CheckError(err)
-		actualServiceToken, err := LoadServiceToken(*service)
+		actualServiceToken, err := LoadServiceToken(service)
 		if actualServiceToken == nil || err != nil {
 			t.Fatalf("tokens.LoadServiceToken() returns service token %v, err %v",
 				actualServiceToken, err)
@@ -57,7 +57,7 @@ func TestLoadServiceToken(t *testing.T) {
 	t.Run("success for not exist service token", func(t *testing.T) {
 		service, err := services.RegisterService("load_token")
 		utils.CheckError(err)
-		actualServiceToken, err := LoadServiceToken(*service)
+		actualServiceToken, err := LoadServiceToken(service)
 		if actualServiceToken == nil || err != nil ||
 			actualServiceToken.serviceUUID == "" ||
 			len(actualServiceToken.Token) != 64 {
@@ -74,13 +74,13 @@ func TestDeleteServiceTokens(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		service, err := services.RegisterService("delete_token")
 		utils.CheckError(err)
-		serviceToken, err := LoadServiceToken(*service)
+		serviceToken, err := LoadServiceToken(service)
 		utils.CheckError(err)
-		err = DeleteServiceTokens(*service)
+		err = DeleteServiceTokens(service)
 		if err != nil {
 			t.Fatalf("tokens.DeleteServiceTokens() return err %v", err)
 		}
-		newServiceToken, err := LoadServiceToken(*service)
+		newServiceToken, err := LoadServiceToken(service)
 		utils.CheckError(err)
 		if newServiceToken.Token == serviceToken.Token {
 			t.Fatalf("tokens.DeleteServiceTokens() does not remove token in database")
@@ -95,13 +95,13 @@ func TestRenewServiceToken(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		service, err := services.RegisterService("renew_token")
 		utils.CheckError(err)
-		serviceToken, err := LoadServiceToken(*service)
+		serviceToken, err := LoadServiceToken(service)
 		utils.CheckError(err)
-		err = RenewServiceToken(*service)
+		err = RenewServiceToken(service)
 		if err != nil {
 			t.Fatalf("tokens.RenewServiceToken() return err %v", err)
 		}
-		newServiceToken, err := LoadServiceToken(*service)
+		newServiceToken, err := LoadServiceToken(service)
 		utils.CheckError(err)
 		if newServiceToken.Token == serviceToken.Token {
 			t.Fatalf("tokens.DeleteServiceTokens() does not remove token in database")

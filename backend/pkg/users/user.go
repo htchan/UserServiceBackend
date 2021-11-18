@@ -37,7 +37,7 @@ func Signup(username, password string) (*User, error) {
 	return user, nil
 }
 
-func Dropout(user User) error {
+func Dropout(user *User) error {
 	return user.delete()
 }
 

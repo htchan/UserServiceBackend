@@ -10,7 +10,7 @@ type ServiceToken struct {
 	Token string
 }
 
-func generateServiceToken(service services.Service) *ServiceToken {
+func generateServiceToken(service *services.Service) *ServiceToken {
 	serviceToken := new(ServiceToken)
 	for true {
 		serviceToken.Token = utils.RandomString(64)
@@ -22,7 +22,7 @@ func generateServiceToken(service services.Service) *ServiceToken {
 	return serviceToken
 }
 
-func LoadServiceToken(service services.Service) (*ServiceToken, error) {
+func LoadServiceToken(service *services.Service) (*ServiceToken, error) {
 	token, err := FindServiceTokenByService(service)
 	if err == nil {
 		return token, nil
@@ -35,7 +35,7 @@ func LoadServiceToken(service services.Service) (*ServiceToken, error) {
 	return serviceToken, nil
 }
 
-func DeleteServiceTokens(service services.Service) error {
+func DeleteServiceTokens(service *services.Service) error {
 
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
@@ -48,7 +48,7 @@ func DeleteServiceTokens(service services.Service) error {
 	return tx.Commit()
 }
 
-func RenewServiceToken(service services.Service) error {
+func RenewServiceToken(service *services.Service) error {
 	token, err := FindServiceTokenByService(service)
 	if err != nil {
 		return err

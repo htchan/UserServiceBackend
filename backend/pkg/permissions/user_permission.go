@@ -9,7 +9,7 @@ type UserPermission struct {
 	userUUID, Permission string
 }
 
-func GrantPermission(user users.User, permission ServicePermission) error {
+func GrantPermission(user *users.User, permission *ServicePermission) error {
 	if _, err := FindUserPermissionByPermission(user, permission.Permission); err == nil {
 		return errors.New("permission already grant")
 	}
@@ -19,6 +19,6 @@ func GrantPermission(user users.User, permission ServicePermission) error {
 	return userPermission.create()
 }
 
-func RevokePermission(permission UserPermission) error {
+func RevokePermission(permission *UserPermission) error {
 	return permission.delete()
 }

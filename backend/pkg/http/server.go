@@ -36,7 +36,7 @@ func login(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		writeError(res, 401, err.Error())
 	}
-	token, err := tokens.LoadUserToken(*user, 24*60)
+	token, err := tokens.LoadUserToken(user, 24*60)
 	if err != nil {
 		writeError(res, 400, err.Error())
 	}

@@ -25,6 +25,6 @@ func RegisterService(name string) (*Service, error) {
 	return service, nil
 }
 
-func UnregisterService(service Service) error {
+func UnregisterService(service *Service) error {
 	return service.delete()
 }

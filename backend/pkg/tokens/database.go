@@ -56,7 +56,7 @@ func FindUserTokenByTokenStr(tokenStr string) (*UserToken, error) {
 	return nil, errors.New("invalid token")
 }
 
-func FindUserTokenByUser(user users.User) (*UserToken, error) {
+func FindUserTokenByUser(user *users.User) (*UserToken, error) {
 	tx, err := utils.GetDB().Begin()
 	defer tx.Rollback()
 	if err != nil {
@@ -142,7 +142,7 @@ func FindServiceTokenByTokenStr(tokenStr string) (*ServiceToken, error) {
 	return nil, errors.New("invalid token")
 }
 
-func FindServiceTokenByService(service services.Service) (*ServiceToken, error) {
+func FindServiceTokenByService(service *services.Service) (*ServiceToken, error) {
 	tx, err := utils.GetDB().Begin()
 	defer tx.Rollback()
 	if err != nil {

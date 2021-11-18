@@ -49,7 +49,7 @@ func TestUnregisterService(t *testing.T) {
 	utils.CheckError(err)
 
 	t.Run("exist service", func(t *testing.T) {
-		err = UnregisterService(*service)
+		err = UnregisterService(service)
 		if err != nil {
 			t.Fatalf("services.UnregisterService on exist service return error : %v", err)
 		}
@@ -59,7 +59,7 @@ func TestUnregisterService(t *testing.T) {
 	})
 
 	t.Run("not exist service will not return error", func(t *testing.T) {
-		err = UnregisterService(*service)
+		err = UnregisterService(service)
 		if err != nil {
 			t.Fatalf("services.UnregisterService on not exist service return error : %v", err)
 		}

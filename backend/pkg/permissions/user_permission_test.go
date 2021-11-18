@@ -28,15 +28,15 @@ func TestGrantPermission(t *testing.T) {
 	utils.CheckError(err)
 	service, err := services.RegisterService("grant_service")
 	utils.CheckError(err)
-	permission, err := RegisterPermission(*service, "grant_permission")
+	permission, err := RegisterPermission(service, "grant_permission")
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
-		err := GrantPermission(*user, *permission)
+		err := GrantPermission(user, permission)
 		if err != nil {
 			t.Fatalf("permissions.GrantPermission() returns err %v", err)
 		}
-		resultPermissions, err := FindUserPermissionsByUser(*user)
+		resultPermissions, err := FindUserPermissionsByUser(user)
 		utils.CheckError(err)
 		if len(resultPermissions) != 1 && resultPermissions[0].Permission != "grant_permission" {
 			t.Fatalf("permissions.GrantPermission() save permission as %v",
@@ -45,7 +45,7 @@ func TestGrantPermission(t *testing.T) {
 	})
 
 	t.Run("already exist", func(t *testing.T) {
-		err := GrantPermission(*user, *permission)
+		err := GrantPermission(user, permission)
 		if err == nil {
 			t.Fatalf("permissions.GrantPermission() does not return error on granted permissions")
 		}
@@ -60,19 +60,19 @@ func TestRevokePermission(t *testing.T) {
 	utils.CheckError(err)
 	service, err := services.RegisterService("revoke_service")
 	utils.CheckError(err)
-	servicePermission, err := RegisterPermission(*service, "revoke_permission")
+	servicePermission, err := RegisterPermission(service, "revoke_permission")
 	utils.CheckError(err)
-	err = GrantPermission(*user, *servicePermission)
+	err = GrantPermission(user, servicePermission)
 	utils.CheckError(err)
-	userPermission, err := FindUserPermissionByPermission(*user, servicePermission.Permission)
+	userPermission, err := FindUserPermissionByPermission(user, servicePermission.Permission)
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
-		err = RevokePermission(*userPermission)
+		err = RevokePermission(userPermission)
 		if err != nil {
 			t.Fatalf("permissions.RevokePermission() returns err %v", err)
 		}
-		resultPermissions, err := FindUserPermissionsByUser(*user)
+		resultPermissions, err := FindUserPermissionsByUser(user)
 		utils.CheckError(err)
 		if len(resultPermissions) != 0 {
 			t.Fatalf("permissions.RevokePermission() save permission as %v",

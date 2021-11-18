@@ -261,13 +261,13 @@ func TestRegisterPermission(t *testing.T) {
 		}
 		service, err := services.FindServiceByName(name)
 		utils.CheckError(err)
-		permission, err := permissions.FindServicePermissionByPermission(*service, permissionName)
+		permission, err := permissions.FindServicePermissionByPermission(service, permissionName)
 		if permission == nil || err != nil {
 			t.Fatalf("grpc.Server.RegisterPermission does not save service permission to db")
 		}
 	})
 
-	t.Run("fail if permission already exist", func(tt *testing.T) {
+	t.Run("fail if permission already exist", func(t *testing.T) {
 		result, err := client.RegisterPermission(ctx, permissionWithToken)
 		if result != nil || err == nil {
 			t.Fatalf("grpc.Server.RegisterPermission success for existing service permission: result - %v, err - %v",
@@ -303,7 +303,7 @@ func TestUnregisterPermission(t *testing.T) {
 
 		service, err := services.FindServiceByName(name)
 		utils.CheckError(err)
-		permission, err := permissions.FindServicePermissionByPermission(*service, permissionName)
+		permission, err := permissions.FindServicePermissionByPermission(service, permissionName)
 		if permission == nil || err != nil {
 			t.Fatalf("grpc.Server.UnregisterPermission of wrong service remove permission from db")
 		}
@@ -318,7 +318,7 @@ func TestUnregisterPermission(t *testing.T) {
 
 		service, err := services.FindServiceByName(name)
 		utils.CheckError(err)
-		permission, err := permissions.FindServicePermissionByPermission(*service, permissionName)
+		permission, err := permissions.FindServicePermissionByPermission(service, permissionName)
 		if permission != nil || err == nil {
 			t.Fatalf("grpc.Server.UnregisterPermission does not remove permission from db")
 		}
@@ -362,7 +362,7 @@ func TestAuthorize(t *testing.T) {
 
 		user, err := users.FindUserByName(username)
 		utils.CheckError(err)
-		userPermission, err := permissions.FindUserPermissionByPermission(*user, permissionName)
+		userPermission, err := permissions.FindUserPermissionByPermission(user, permissionName)
 		if userPermission == nil || err != nil {
 			t.Fatalf("grpc.Server.Authorize does not save user permission to db")
 		}

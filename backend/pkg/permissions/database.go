@@ -35,7 +35,7 @@ func (userPermission UserPermission) delete() error {
 	return tx.Commit()
 }
 
-func FindUserPermissionsByUser(user users.User) ([]UserPermission, error) {
+func FindUserPermissionsByUser(user *users.User) ([]*UserPermission, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
@@ -46,16 +46,16 @@ func FindUserPermissionsByUser(user users.User) ([]UserPermission, error) {
 	if err != nil {
 		return nil, err
 	}
-	permissions := make([]UserPermission, 0)
+	permissions := make([]*UserPermission, 0)
 	for rows.Next() {
 		userPermission := new(UserPermission)
 		rows.Scan(&userPermission.userUUID, &userPermission.Permission)
-		permissions = append(permissions, *userPermission)
+		permissions = append(permissions, userPermission)
 	}
 	return permissions, nil
 }
 
-func FindUserPermissionByPermission(user users.User, permissionStr string) (*UserPermission, error) {
+func FindUserPermissionByPermission(user *users.User, permissionStr string) (*UserPermission, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (servicePermission ServicePermission) delete() error {
 
 }
 
-func FindServicePermissionsByService(service services.Service) ([]ServicePermission, error) {
+func FindServicePermissionsByService(service *services.Service) ([]ServicePermission, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func FindServicePermissionsByService(service services.Service) ([]ServicePermiss
 	return permissions, nil
 }
 
-func FindServicePermissionByPermission(service services.Service, permissionStr string) (*ServicePermission, error) {
+func FindServicePermissionByPermission(service *services.Service, permissionStr string) (*ServicePermission, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
