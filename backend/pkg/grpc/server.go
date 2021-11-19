@@ -149,8 +149,7 @@ func (server *Server) Authenticate(ctx context.Context, in *grpc.TokenWithPermis
 	if err != nil {
 		return nil, err
 	}
-	s := "success"
-	return &grpc.Result{Result: &s}, nil
+	return &grpc.Result{Result: &user.UUID}, nil
 }
 
 func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (*grpc.Result, error) {

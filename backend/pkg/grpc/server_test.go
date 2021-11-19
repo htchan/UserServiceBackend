@@ -418,7 +418,7 @@ func TestAuthenticate(t *testing.T) {
 			*userToken.Token,
 			permissionName,
 		))
-		if result == nil || err != nil || *result.Result != "success" {
+		if result == nil || err != nil || *result.Result != user.UUID {
 			t.Fatalf("grpc.Server.Authenticate fail in normal flow")
 		}
 	})
