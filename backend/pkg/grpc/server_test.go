@@ -25,7 +25,7 @@ var lis *bufconn.Listener
 var ctx context.Context
 var conn *grpc.ClientConn
 
-var client pb.UserServiceClient
+var client Client
 
 func init() {
 	source, err := os.Open("../../assets/template.db")

@@ -5,7 +5,11 @@ import (
 	grpc "google.golang.org/grpc"
 )
 
-func NewClient(address string) pb.UserServiceClient {
+type Client interface {
+	pb.UserServiceClient
+}
+
+func NewClient(address string) Client {
 	conn, _ := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	return pb.NewUserServiceClient(conn)
 }

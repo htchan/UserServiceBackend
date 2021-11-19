@@ -7,7 +7,6 @@ import (
 	"strings"
 	"context"
 	"github.com/htchan/UserService/backend/pkg/grpc"
-	pb "github.com/htchan/UserService/backend/internal/grpc"
 )
 
 var (
@@ -19,7 +18,7 @@ var (
 	token *string
 	permission *string
 	userUUID *string
-	client pb.UserServiceClient
+	client grpc.Client
 	ctx context.Context
 )
 
