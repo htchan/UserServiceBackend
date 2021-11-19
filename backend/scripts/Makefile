@@ -23,5 +23,7 @@ poc_orm:
 
 build:
 	clear
-	go build github.com/htchan/UserService/backend/cmd
-	mv cmd ../../main
+	go build github.com/htchan/UserService/backend/cmd/server
+	mv server ../../main
+	go build github.com/htchan/UserService/backend/cmd/controller
+	mv controller ../../controller
