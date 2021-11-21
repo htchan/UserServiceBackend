@@ -23,7 +23,6 @@ func startGRPC() {
 func startHTTP() {
 	http.StartServer(fmt.Sprintf("0.0.0.0:%v", httpPort))
 	wg.Done()
-
 }
 
 func main() {

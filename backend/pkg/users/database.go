@@ -48,10 +48,10 @@ func (user User) update() error {
 
 func FindUserByName(username string) (*User, error) {
 	tx, err := utils.GetDB().Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	rows, err := tx.Query("select uuid, password from users where username=?",
 		username)
 	if err != nil {
@@ -68,10 +68,10 @@ func FindUserByName(username string) (*User, error) {
 
 func FindUserByUUID(uuid string) (*User, error) {
 	tx, err := utils.GetDB().Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	rows, err := tx.Query("select username, password from users where uuid=?",
 		uuid)
 	if err != nil {

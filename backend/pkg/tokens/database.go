@@ -38,10 +38,10 @@ func (userToken UserToken) delete() error {
 
 func FindUserTokenByTokenStr(tokenStr string) (*UserToken, error) {
 	tx, err := utils.GetDB().Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	rows, err := tx.Query("select user_uuid, created_date, duration from user_tokens where token=?",
 		tokenStr)
 	if err != nil {
@@ -58,10 +58,10 @@ func FindUserTokenByTokenStr(tokenStr string) (*UserToken, error) {
 
 func FindUserTokenByUser(user *users.User) (*UserToken, error) {
 	tx, err := utils.GetDB().Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	rows, err := tx.Query("select token, created_date, duration from user_tokens where user_uuid=?",
 		user.UUID)
 	if err != nil {
@@ -92,6 +92,7 @@ func (serviceToken ServiceToken) create() error {
 	_, err = tx.Exec("insert into service_tokens (service_uuid, token) values (?, ?)",
 		serviceToken.serviceUUID, serviceToken.Token)
 	if err != nil {
+		tx.Rollback()
 		return nil
 	}
 	return tx.Commit()
@@ -100,10 +101,12 @@ func (serviceToken ServiceToken) create() error {
 func (serviceToken ServiceToken) delete() error {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
+		tx.Rollback()
 		return nil
 	}
 	_, err = tx.Exec("delete from service_tokens where token=?", serviceToken.Token)
 	if err != nil {
+		tx.Rollback()
 		return nil
 	}
 	return tx.Commit()
@@ -117,6 +120,7 @@ func (serviceToken ServiceToken) update() error {
 	_, err = tx.Exec("update service_tokens set token=? where service_uuid=?",
 		serviceToken.Token, serviceToken.serviceUUID)
 	if err != nil {
+		tx.Rollback()
 		return nil
 	}
 	return tx.Commit()
@@ -124,10 +128,10 @@ func (serviceToken ServiceToken) update() error {
 
 func FindServiceTokenByTokenStr(tokenStr string) (*ServiceToken, error) {
 	tx, err := utils.GetDB().Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	rows, err := tx.Query("select service_uuid from service_tokens where token=?",
 		tokenStr)
 	if err != nil {
@@ -144,10 +148,10 @@ func FindServiceTokenByTokenStr(tokenStr string) (*ServiceToken, error) {
 
 func FindServiceTokenByService(service *services.Service) (*ServiceToken, error) {
 	tx, err := utils.GetDB().Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	rows, err := tx.Query("select token from service_tokens where service_uuid=?",
 		service.UUID)
 	if err != nil {

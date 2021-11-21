@@ -31,6 +31,7 @@ func initFlag() {
 	token = flag.String("token", "", "user / service token")
 	permission = flag.String("permission", "", "permission")
 	userUUID = flag.String("user-uuid", "", "user uuid")
+	flag.Parse()
 }
 
 func checkVariableNotEmpty(name string, s *string) {

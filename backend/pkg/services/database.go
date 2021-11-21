@@ -34,10 +34,10 @@ func (service Service) delete() error {
 
 func FindServiceByName(serviceName string) (*Service, error) {
 	tx, err := utils.GetDB().Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	rows, err := tx.Query("select uuid, name from services where name=?", serviceName)
 	if err != nil {
 		return nil, err
@@ -52,10 +52,10 @@ func FindServiceByName(serviceName string) (*Service, error) {
 
 func FindServiceByUUID(uuid string) (*Service, error) {
 	tx, err := utils.GetDB().Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	rows, err := tx.Query("select uuid, name from services where uuid=?",
 		uuid)
 	if err != nil {
