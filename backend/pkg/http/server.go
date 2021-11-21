@@ -25,27 +25,43 @@ func writeError(res http.ResponseWriter, code int, msg string) {
 	})
 }
 
+func redirect(res http.ResponseWriter, path string) {
+	res.WriteHeader(302)
+	res.Header().Set("location", path)
+}
+
 func login(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set("Content-Type", "application/json; charset=utf-8")
+	res.Header().Set("Access-Control-Allow-Origin", "*")
 	if err := req.ParseForm(); err != nil {
 		fmt.Fprintf(res, "ParseForm() err: %v", err)
 		return
 	}
-	username := req.FormValue("username")
-	password := req.FormValue("password")
+	username := req.Form.Get("username")
+	password := req.Form.Get("password")
+	fmt.Println("hi", req.Form, username, " ", password)
 	user, err := users.Login(username, password)
 	if err != nil {
 		writeError(res, 401, err.Error())
+		return
 	}
 	token, err := tokens.LoadUserToken(user, 24*60)
 	if err != nil {
 		writeError(res, 400, err.Error())
 	}
-	response(res, map[string]interface{} {
-		"token": token.Token,
-	})
+	path, ok := req.URL.Query()["path"]
+	if ok {
+		redirect(res, path[0] + "#" + token.Token)
+	} else {
+		response(res, map[string]interface{} {
+			"token": token.Token,
+		})
+	}
 }
 
 func logout(res http.ResponseWriter, req *http.Request) {
+	res.Header().Set("Content-Type", "application/json; charset=utf-8")
+	res.Header().Set("Access-Control-Allow-Origin", "*")
 	tokenStr := req.Header.Get("Authorization")
 	token, err := tokens.FindUserTokenByTokenStr(tokenStr)
 	if err != nil {
@@ -58,8 +74,8 @@ func logout(res http.ResponseWriter, req *http.Request) {
 }
 
 func StartServer(addr string) {
-	http.HandleFunc("api/users/login", login)
-	http.HandleFunc("api/users/logout", logout)
+	http.HandleFunc("/api/users/login", login)
+	http.HandleFunc("/api/users/logout", logout)
 	log.Println("http started")
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
