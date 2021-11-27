@@ -21,9 +21,12 @@ poc_orm:
 	ls -l ../gorm_main ../sqlite_main
 	rm ../sqlite_main ../gorm_main
 
-build:
-	clear
+build_server: ../pkg ../cmd/server ../internal
 	go build github.com/htchan/UserService/backend/cmd/server
 	mv server ../../main
+
+build_controller: ../pkg ../cmd/controller ../internal
 	go build github.com/htchan/UserService/backend/cmd/controller
 	mv controller ../../controller
+
+build: build_server build_controller

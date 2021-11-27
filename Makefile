@@ -1,17 +1,25 @@
-test: ./go.mod ./go.sum ./backend
+.PHONY: backend frontend
+
+test:
 	cp go.mod ./backend
 	cp go.sum ./backend
 	docker-compose --profile test up --build
 	rm ./backend/go.*
 
-build: ./go.mod ./go.sum ./backend
+build:
 	cp go.mod ./backend
 	cp go.sum ./backend
 	docker-compose --profile all build
 	rm ./backend/go.*
 
-server: ./go.mod ./go.sum ./backend
+backend:
+	docker-compose --profile backend up -d
+
+frontend:
+	docker-compose --profile frontend up
+
+controller:
 	echo "to be finish"
 
-controller: ./go.mod ./go.sum ./backend
-	echo "to be finish"
+local_frontend:
+	cd frontend ; flutter run -d chrome

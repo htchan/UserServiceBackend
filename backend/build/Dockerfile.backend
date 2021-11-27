@@ -10,15 +10,15 @@ RUN go mod download
 
 COPY ./internal ./backend/internal
 COPY ./pkg ./backend/pkg
-COPY ./cmd ./backend/cmd
+COPY ./cmd/backend ./backend/cmd
 
-RUN go build github.com/htchan/UserService/backend/cmd/server
+RUN go build github.com/htchan/UserService/backend/cmd
 
 
 FROM golang:1.16.3-alpine3.13
 
 WORKDIR /usr/src/app
 
-COPY --from=builder /go/src/github.com/htchan/UserService/server .
+COPY --from=builder /go/src/github.com/htchan/UserService/cmd ./backend
 
-CMD ['./server']
+CMD ['./cmd']

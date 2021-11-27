@@ -13,4 +13,40 @@ services:
       github.com/htchan/UserService/backend/pkg/tokens \
       github.com/htchan/UserService/backend/pkg/permissions \
       github.com/htchan/UserService/backend/pkg/http \
-      github.com/htchan/UserService/backend/cmd -v"
+      github.com/htchan/UserService/backend/cmd/backend \
+      github.com/htchan/Userservice/backend/cmd/controller -v"
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./build/Dockerfile.backend
+    profiles:
+      - all
+      - backend
+      - web
+    volumes:
+      - ./bin:/usr/src/app/bin
+    networks:
+      - router
+    ports:
+      - 8000:8000
+      - 8080:8080
+    command: "./backend"
+  frontend:
+    image: "flutter:latest"
+    volumes:
+      - frontend_volume:/build/web
+      - ./frontend:/usr/src/app
+    profiles:
+      - all
+      - frontend
+      - web
+    command: sh -c "flutter --version ; flutter pub get ; flutter build web"
+
+volumes:
+  frontend_volume:
+    name: userservice_frontend_volume
+
+networks:
+    router:
+        driver: bridge
+        name: router
