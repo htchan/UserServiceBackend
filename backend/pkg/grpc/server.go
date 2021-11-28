@@ -16,7 +16,7 @@ type Server struct {
 	grpc.UnimplementedUserServiceServer
 }
 
-func (server *Server) Signup(ctx context.Context, in *grpc.LoginParams) (*grpc.AuthToken, error) {
+func (server *Server) Signup(ctx context.Context, in *grpc.SignupParams) (*grpc.AuthToken, error) {
 	user, err := users.Signup(*in.Username, *in.Password)
 	if err != nil {
 		return nil, err
@@ -54,9 +54,13 @@ func (server *Server) Dropout(ctx context.Context, in *grpc.AuthToken) (*grpc.Re
 	return &grpc.Result{Result: &s}, nil
 }
 
-func (server *Server) Login(ctx context.Context, in *grpc.LoginParams) (*grpc.AuthToken, error) {
+func (server *Server) Login(ctx context.Context, in *grpc.LoginParams) (*grpc.TokenWithUrl, error) {
 	// find / generate token for user
 	user, err := users.Login(*in.Username, *in.Password)
+	if err != nil {
+		return nil, err
+	}
+	service, err := tokens.FindServiceByTokenStr(*in.Token)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +68,9 @@ func (server *Server) Login(ctx context.Context, in *grpc.LoginParams) (*grpc.Au
 	if err != nil {
 		return nil, err
 	}
-	token := new(grpc.AuthToken)
+	token := new(grpc.TokenWithUrl)
 	token.Token = &userToken.Token
+	token.Url = &service.Url
 	return token, nil
 }
 
@@ -83,7 +88,7 @@ func (server *Server) Logout(ctx context.Context, in *grpc.AuthToken) (*grpc.Res
 }
 
 func (server *Server) RegisterService(ctx context.Context, in *grpc.ServiceName) (*grpc.AuthToken, error) {
-	service, err := services.RegisterService(*in.Name)
+	service, err := services.RegisterService(*in.Name, *in.Url)
 	if err != nil {
 		return nil, err
 	}

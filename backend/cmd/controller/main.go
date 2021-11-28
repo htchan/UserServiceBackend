@@ -15,6 +15,7 @@ var (
 	username *string
 	password *string
 	serviceName *string
+	url *string
 	token *string
 	permission *string
 	userUUID *string
@@ -28,6 +29,7 @@ func initFlag() {
 	username = flag.String("username", "", "username")
 	password = flag.String("password", "", "password")
 	serviceName = flag.String("service-name", "", "service name")
+	url = flag.String("url", "", "url")
 	token = flag.String("token", "", "user / service token")
 	permission = flag.String("permission", "", "permission")
 	userUUID = flag.String("user-uuid", "", "user uuid")
@@ -90,8 +92,9 @@ func Logout() {
 
 func RegisterService() {
 	checkVariableNotEmpty("service-name", serviceName)
+	checkVariableNotEmpty("url", url)
 
-	service := grpc.NewServiceName(*serviceName)
+	service := grpc.NewServiceName(*serviceName, *url)
 	token, err := client.RegisterService(ctx, service)
 
 	reportError("register service", err)

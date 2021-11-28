@@ -20,9 +20,10 @@ func NewAuthToken(token string) *pb.AuthToken {
 	}
 }
 
-func NewServiceName(name string) *pb.ServiceName {
+func NewServiceName(name, url string) *pb.ServiceName {
 	return &pb.ServiceName{
 		Name: &name,
+		Url: &url,
 	}
 }
  
@@ -34,10 +35,18 @@ func NewAuthorizeParams(token, userUUID, permission string) *pb.AuthorizeParams 
 	}
 }
 
-func NewLoginParams(username, password string) *pb.LoginParams {
+func NewSignupParams(username, password string) *pb.SignupParams {
+	return &pb.SignupParams{
+		Username: &username,
+		Password: &password,
+	}
+}
+
+func NewLoginParams(username, password, token string) *pb.LoginParams {
 	return &pb.LoginParams{
 		Username: &username,
 		Password: &password,
+		Token: &token,
 	}
 }
 

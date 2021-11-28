@@ -59,10 +59,10 @@ func TestSignup(t *testing.T) {
 
 	username := "signup_username"
 	password := "password"
-	loginParams := NewLoginParams(username, password)
+	signupParams := NewSignupParams(username, password)
 	
 	t.Run("success", func(t *testing.T) {
-		token, err := client.Signup(ctx, loginParams)
+		token, err := client.Signup(ctx, signupParams)
 		if token == nil || err != nil || len(*token.Token) != 64 {
 			t.Fatalf("grpc failed in normal signup: token - %v, err - %v",
 				token, err)
@@ -74,7 +74,7 @@ func TestSignup(t *testing.T) {
 	})
 
 	t.Run("fail if username already exist", func(t *testing.T) {
-		token, err := client.Signup(ctx, loginParams)
+		token, err := client.Signup(ctx, signupParams)
 		if token != nil || err == nil {
 			t.Fatalf("grpc failed in repeat username signup: token - %v, err - %v",
 				token, err)
@@ -87,8 +87,8 @@ func TestDropout(t *testing.T) {
 
 	username := "dropout_username"
 	password := "password"
-	loginParams := NewLoginParams(username, password)
-	token, err := client.Signup(ctx, loginParams)
+	signupParams := NewSignupParams(username, password)
+	token, err := client.Signup(ctx, signupParams)
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
@@ -120,9 +120,12 @@ func TestLogin(t *testing.T) {
 	username := "login_username"
 	password := "password"
 	invalidPassword := "invalid password"
-	loginParams := NewLoginParams(username, password)
-	token, err := client.Signup(ctx, loginParams)
+	signupParams := NewSignupParams(username, password)
+	token, err := client.Signup(ctx, signupParams)
 	utils.CheckError(err)
+	serviceToken, err := client.RegisterService(ctx, NewServiceName("login_service", "some_url"))
+	utils.CheckError(err)
+	loginParams := NewLoginParams(username, password, *serviceToken.Token)
 
 	t.Run("success", func(t *testing.T) {
 		actualToken, err := client.Login(ctx, loginParams)
@@ -141,11 +144,11 @@ func TestLogin(t *testing.T) {
 			t.Fatalf("grpc.Server.Login fail in normal flow: token - %v, err - %v",
 				actualToken, err)
 		}
-		token = actualToken
+		token = NewAuthToken(*actualToken.Token)
 	})
 	
 	t.Run("fail if password invalid", func(t *testing.T) {
-		invalidLoginParams := NewLoginParams(username, invalidPassword)
+		invalidLoginParams := NewLoginParams(username, invalidPassword, *serviceToken.Token)
 		actualToken, err := client.Login(ctx, invalidLoginParams)
 		if actualToken != nil || err == nil {
 			t.Fatalf("grpc.Server.Login success for invalid password: token - %v, err - %v",
@@ -159,8 +162,8 @@ func TestLogout(t *testing.T) {
 
 	username := "logout_username"
 	password := "password"
-	loginParams := NewLoginParams(username, password)
-	token, err := client.Signup(ctx, loginParams)
+	signupParams := NewSignupParams(username, password)
+	token, err := client.Signup(ctx, signupParams)
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
@@ -185,7 +188,8 @@ func TestRegisterService(t *testing.T) {
 	defer utils.CloseDB()
 
 	name := "reg_service"
-	serviceName := NewServiceName(name)
+	url := "some_url"
+	serviceName := NewServiceName(name, url)
 
 	t.Run("success", func(t *testing.T) {
 		token, err := client.RegisterService(ctx, serviceName)
@@ -216,7 +220,8 @@ func TestUnregisterService(t *testing.T) {
 	defer utils.CloseDB()
 
 	name := "un_reg_service"
-	serviceName := NewServiceName(name)
+	url := "some_url"
+	serviceName := NewServiceName(name, url)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
 
@@ -246,7 +251,8 @@ func TestRegisterPermission(t *testing.T) {
 	defer utils.CloseDB()
 
 	name := "reg_permission_service"
-	serviceName := NewServiceName(name)
+	url := "some_url"
+	serviceName := NewServiceName(name, url)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
 
@@ -280,12 +286,13 @@ func TestUnregisterPermission(t *testing.T) {
 	defer utils.CloseDB()
 	
 	name := "un_reg_permission_service"
-	serviceName := NewServiceName(name)
+	url := "some_url"
+	serviceName := NewServiceName(name, url)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
 
 	emptyName := "empty_permission_service"
-	emptyServiceName := NewServiceName(emptyName)
+	emptyServiceName := NewServiceName(emptyName, url)
 	emptyServiceToken, err := client.RegisterService(ctx, emptyServiceName)
 	utils.CheckError(err)
 
@@ -336,7 +343,8 @@ func TestAuthorize(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
 	name := "author_service"
-	serviceName := NewServiceName(name)
+	url := "some_url"
+	serviceName := NewServiceName(name, url)
 	serviceToken, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
 	permissionName := "author_permission"
@@ -346,7 +354,7 @@ func TestAuthorize(t *testing.T) {
 
 	username := "author_username"
 	password := "password"
-	token, err := client.Signup(ctx, NewLoginParams(username, password))
+	token, err := client.Signup(ctx, NewSignupParams(username, password))
 	utils.CheckError(err)
 
 	user, err := tokens.FindUserByTokenStr(*token.Token)
@@ -387,7 +395,8 @@ func TestAuthenticate(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
 	name := "authen_service"
-	serviceName := NewServiceName(name)
+	url := "some_url"
+	serviceName := NewServiceName(name, url)
 	serviceToken, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
 	permissionName := "authen_permission"
@@ -397,14 +406,14 @@ func TestAuthenticate(t *testing.T) {
 
 	username := "authen_username"
 	password := "password"
-	userToken, err := client.Signup(ctx, NewLoginParams(username, password))
+	userToken, err := client.Signup(ctx, NewSignupParams(username, password))
 	utils.CheckError(err)
 	user, err := tokens.FindUserByTokenStr(*userToken.Token)
 	utils.CheckError(err)
 
 	username2 := "no_authen_username"
 	password2 := "password"
-	userToken2, err := client.Signup(ctx, NewLoginParams(username2, password2))
+	userToken2, err := client.Signup(ctx, NewSignupParams(username2, password2))
 	utils.CheckError(err)
 	_, err = client.Authorize(ctx, NewAuthorizeParams(
 		*serviceToken.Token,

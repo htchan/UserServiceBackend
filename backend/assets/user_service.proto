@@ -5,9 +5,9 @@ option go_package = "github.com/htchan/UserService/backend/grpc";
 package grpc;
 
 service UserService {
-  rpc Signup (LoginParams) returns (AuthToken) {}
+  rpc Signup (SignupParams) returns (AuthToken) {}
   rpc Dropout (AuthToken) returns (Result) {}
-  rpc Login (LoginParams) returns (AuthToken) {}
+  rpc Login (LoginParams) returns (TokenWithUrl) {}
   rpc Logout (AuthToken) returns (Result) {}
   rpc RegisterService (ServiceName) returns (AuthToken) {}
   rpc UnregisterService (AuthToken) returns (Result) {}
@@ -27,6 +27,7 @@ message Result {
 
 message ServiceName {
   required string name = 1;
+  required string url = 2;
 }
 
 message AuthorizeParams {
@@ -35,12 +36,23 @@ message AuthorizeParams {
   required string permission = 3;
 }
 
+message SignupParams {
+  required string username = 1;
+  required string password = 2;
+}
+
 message LoginParams {
   required string username = 1;
   required string password = 2;
+  required string token = 3;
 }
 
 message TokenWithPermission {
   required string token = 1;
   required string permission = 2;
+}
+
+message TokenWithUrl {
+  required string token = 1;
+  required string url = 2;
 }

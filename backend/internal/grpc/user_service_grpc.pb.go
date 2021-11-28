@@ -18,9 +18,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	Signup(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*AuthToken, error)
+	Signup(ctx context.Context, in *SignupParams, opts ...grpc.CallOption) (*AuthToken, error)
 	Dropout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
-	Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*AuthToken, error)
+	Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*TokenWithUrl, error)
 	Logout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
 	RegisterService(ctx context.Context, in *ServiceName, opts ...grpc.CallOption) (*AuthToken, error)
 	UnregisterService(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
@@ -38,7 +38,7 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) Signup(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*AuthToken, error) {
+func (c *userServiceClient) Signup(ctx context.Context, in *SignupParams, opts ...grpc.CallOption) (*AuthToken, error) {
 	out := new(AuthToken)
 	err := c.cc.Invoke(ctx, "/grpc.UserService/Signup", in, out, opts...)
 	if err != nil {
@@ -56,8 +56,8 @@ func (c *userServiceClient) Dropout(ctx context.Context, in *AuthToken, opts ...
 	return out, nil
 }
 
-func (c *userServiceClient) Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*AuthToken, error) {
-	out := new(AuthToken)
+func (c *userServiceClient) Login(ctx context.Context, in *LoginParams, opts ...grpc.CallOption) (*TokenWithUrl, error) {
+	out := new(TokenWithUrl)
 	err := c.cc.Invoke(ctx, "/grpc.UserService/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -132,9 +132,9 @@ func (c *userServiceClient) UnregisterPermission(ctx context.Context, in *TokenW
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	Signup(context.Context, *LoginParams) (*AuthToken, error)
+	Signup(context.Context, *SignupParams) (*AuthToken, error)
 	Dropout(context.Context, *AuthToken) (*Result, error)
-	Login(context.Context, *LoginParams) (*AuthToken, error)
+	Login(context.Context, *LoginParams) (*TokenWithUrl, error)
 	Logout(context.Context, *AuthToken) (*Result, error)
 	RegisterService(context.Context, *ServiceName) (*AuthToken, error)
 	UnregisterService(context.Context, *AuthToken) (*Result, error)
@@ -149,13 +149,13 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) Signup(context.Context, *LoginParams) (*AuthToken, error) {
+func (UnimplementedUserServiceServer) Signup(context.Context, *SignupParams) (*AuthToken, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Signup not implemented")
 }
 func (UnimplementedUserServiceServer) Dropout(context.Context, *AuthToken) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Dropout not implemented")
 }
-func (UnimplementedUserServiceServer) Login(context.Context, *LoginParams) (*AuthToken, error) {
+func (UnimplementedUserServiceServer) Login(context.Context, *LoginParams) (*TokenWithUrl, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedUserServiceServer) Logout(context.Context, *AuthToken) (*Result, error) {
@@ -193,7 +193,7 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 }
 
 func _UserService_Signup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LoginParams)
+	in := new(SignupParams)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func _UserService_Signup_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/grpc.UserService/Signup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Signup(ctx, req.(*LoginParams))
+		return srv.(UserServiceServer).Signup(ctx, req.(*SignupParams))
 	}
 	return interceptor(ctx, in, info, handler)
 }

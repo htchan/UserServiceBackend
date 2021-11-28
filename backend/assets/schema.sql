@@ -8,7 +8,8 @@ create unique index users__username on users(username);
 
 create table services (
     uuid varchar(64) primary key,
-    name varchar(256) unique
+    name varchar(256) unique,
+    url text
 );
 
 create unique index services__name on services(name);
@@ -21,7 +22,7 @@ create table user_tokens (
     duration int
 );
 
-create unique index user_tokens__uuid on user_tokens(uuid);
+create unique index user_tokens__uuid on user_tokens(user_uuid);
 create unique index user_tokens__token on user_tokens(token);
 
 create table service_tokens (

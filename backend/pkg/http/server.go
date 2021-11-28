@@ -25,11 +25,6 @@ func writeError(res http.ResponseWriter, code int, msg string) {
 	})
 }
 
-func redirect(res http.ResponseWriter, path string) {
-	res.WriteHeader(302)
-	res.Header().Set("location", path)
-}
-
 func login(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 	res.Header().Set("Access-Control-Allow-Origin", "*")
@@ -39,8 +34,14 @@ func login(res http.ResponseWriter, req *http.Request) {
 	}
 	username := req.Form.Get("username")
 	password := req.Form.Get("password")
+	serviceToken := req.Form.Get("serviceToken")
 	fmt.Println("hi", req.Form, username, " ", password)
 	user, err := users.Login(username, password)
+	if err != nil {
+		writeError(res, 401, err.Error())
+		return
+	}
+	service, err := services.FindServiceByTokenStr(serviceToken)
 	if err != nil {
 		writeError(res, 401, err.Error())
 		return
@@ -49,14 +50,10 @@ func login(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		writeError(res, 400, err.Error())
 	}
-	path, ok := req.URL.Query()["path"]
-	if ok {
-		redirect(res, path[0] + "#" + token.Token)
-	} else {
-		response(res, map[string]interface{} {
-			"token": token.Token,
-		})
-	}
+	response(res, map[string]interface{} {
+		"token": token.Token,
+		"url": token.Url + "user_service/login",
+	})
 }
 
 func logout(res http.ResponseWriter, req *http.Request) {
