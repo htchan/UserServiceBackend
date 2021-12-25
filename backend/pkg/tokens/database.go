@@ -12,9 +12,9 @@ func (userToken UserToken) create() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("insert into user_tokens (user_uuid, token, created_date, duration) values (?, ?, ?, ?)",
-		userToken.userUUID, userToken.Token, userToken.generateDate,
-		userToken.duration)
+	_, err = tx.Exec("insert into user_tokens (user_uuid, service_uuid, token, created_date, duration) values (?, ?, ?, ?, ?)",
+		userToken.userUUID, userToken.serviceUUID,
+		userToken.Token, userToken.generateDate, userToken.duration)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -27,8 +27,8 @@ func (userToken UserToken) delete() error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("delete from user_tokens where user_uuid=? and token=?",
-		userToken.userUUID, userToken.Token)
+	_, err = tx.Exec("delete from user_tokens where user_uuid=? and service_uuid=? and token=?",
+		userToken.userUUID, userToken.serviceUUID, userToken.Token)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -42,7 +42,7 @@ func FindUserTokenByTokenStr(tokenStr string) (*UserToken, error) {
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query("select user_uuid, created_date, duration from user_tokens where token=?",
+	rows, err := tx.Query("select user_uuid, service_uuid, created_date, duration from user_tokens where token=?",
 		tokenStr)
 	if err != nil {
 		return nil, err
@@ -50,26 +50,27 @@ func FindUserTokenByTokenStr(tokenStr string) (*UserToken, error) {
 	if rows.Next() {
 		userToken := new(UserToken)
 		userToken.Token = tokenStr
-		rows.Scan(&userToken.userUUID, &userToken.generateDate, &userToken.duration)
+		rows.Scan(&userToken.userUUID, &userToken.serviceUUID, &userToken.generateDate, &userToken.duration)
 		return userToken, nil
 	}
 	return nil, errors.New("invalid token")
 }
 
-func FindUserTokenByUser(user *users.User) (*UserToken, error) {
+func FindUserTokenByUserService(user *users.User, service *services.Service) (*UserToken, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query("select token, created_date, duration from user_tokens where user_uuid=?",
-		user.UUID)
+	rows, err := tx.Query("select token, created_date, duration from user_tokens where user_uuid=? and service_uuid=?",
+		user.UUID, service.UUID)
 	if err != nil {
 		return nil, err
 	}
 	if rows.Next() {
 		userToken := new(UserToken)
 		userToken.userUUID = user.UUID
+		userToken.serviceUUID = service.UUID
 		rows.Scan(&userToken.Token, &userToken.generateDate, &userToken.duration)
 		return userToken, nil
 	}

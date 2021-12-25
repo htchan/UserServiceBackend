@@ -26,7 +26,7 @@ func TestGrantPermission(t *testing.T) {
 
 	user, err := users.Signup("grant_user", "password")
 	utils.CheckError(err)
-	service, err := services.RegisterService("grant_service")
+	service, err := services.RegisterService("grant_service", "/")
 	utils.CheckError(err)
 	permission, err := RegisterPermission(service, "grant_permission")
 	utils.CheckError(err)
@@ -58,7 +58,7 @@ func TestRevokePermission(t *testing.T) {
 
 	user, err := users.Signup("revoke_user", "password")
 	utils.CheckError(err)
-	service, err := services.RegisterService("revoke_service")
+	service, err := services.RegisterService("revoke_service", "/")
 	utils.CheckError(err)
 	servicePermission, err := RegisterPermission(service, "revoke_permission")
 	utils.CheckError(err)

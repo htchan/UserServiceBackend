@@ -44,7 +44,7 @@ message SignupParams {
 message LoginParams {
   required string username = 1;
   required string password = 2;
-  required string token = 3;
+  required string service = 3;
 }
 
 message TokenWithPermission {

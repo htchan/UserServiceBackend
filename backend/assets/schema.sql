@@ -17,12 +17,13 @@ create unique index services__uuid on services(uuid);
 
 create table user_tokens (
     user_uuid varchar(64),
+    service_uuid varchar(64),
     token text unique,
     created_date int,
     duration int
 );
 
-create unique index user_tokens__uuid on user_tokens(user_uuid);
+create index user_tokens__uuid on user_tokens(user_uuid, service_uuid);
 create unique index user_tokens__token on user_tokens(token);
 
 create table service_tokens (

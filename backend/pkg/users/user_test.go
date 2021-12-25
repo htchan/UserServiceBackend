@@ -18,6 +18,26 @@ func init() {
 	destination.Close()
 }
 
+func Test_check(t *testing.T) {
+	t.Run("pass", func (t *testing.T) {
+		if !check("username", "password") {
+			t.Fatalf("users.check(\"username\", \"password\" return false")
+		}
+	})
+
+	t.Run("empty username", func (t *testing.T) {
+		if check("", "password") {
+			t.Fatalf("users.check(\"\", \"password\" return true")
+		}
+	})
+
+	t.Run("empty password", func (t *testing.T) {
+		if check("username", "") {
+			t.Fatalf("users.check(\"username\", \"\" return true")
+		}
+	})
+}
+
 func Test_newUser(t *testing.T) {
 	utils.OpenDB("../../test/users/user-test-data.db")
 	defer utils.CloseDB()
@@ -28,6 +48,14 @@ func Test_newUser(t *testing.T) {
 			!checkPasswordHash("password", user.encryptedPassword) ||
 			user.UUID == "" {
 			t.Fatalf("user.newUser(\"username\", \"password\") return user: %v, err: %v",
+				user, err)
+		}
+	})
+
+	t.Run("fail if username and password are empty", func (t *testing.T) {
+		user, err := newUser("", "")
+		if user != nil || err == nil {
+			t.Fatalf("user.newUser(\"\", \"\") return user: %v, err: %v",
 				user, err)
 		}
 	})

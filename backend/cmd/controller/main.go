@@ -52,8 +52,8 @@ func Signup() {
 	checkVariableNotEmpty("username", username)
 	checkVariableNotEmpty("password", password)
 
-	loginParams := grpc.NewLoginParams(*username, *password)
-	token, err := client.Signup(ctx, loginParams)
+	signupParams := grpc.NewSignupParams(*username, *password)
+	token, err := client.Signup(ctx, signupParams)
 
 	reportError("signup", err)
 	fmt.Printf("token: %v", token)
@@ -72,8 +72,9 @@ func Dropout() {
 func Login() {
 	checkVariableNotEmpty("username", username)
 	checkVariableNotEmpty("password", password)
+	checkVariableNotEmpty("service-name", serviceName)
 
-	loginParams := grpc.NewLoginParams(*username, *password)
+	loginParams := grpc.NewLoginParams(*username, *password, *token)
 	authToken, err := client.Login(ctx, loginParams)
 
 	reportError("login", err)

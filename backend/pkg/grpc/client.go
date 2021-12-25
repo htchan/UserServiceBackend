@@ -42,11 +42,11 @@ func NewSignupParams(username, password string) *pb.SignupParams {
 	}
 }
 
-func NewLoginParams(username, password, token string) *pb.LoginParams {
+func NewLoginParams(username, password, serviceName string) *pb.LoginParams {
 	return &pb.LoginParams{
 		Username: &username,
 		Password: &password,
-		Token: &token,
+		Service: &serviceName,
 	}
 }
 

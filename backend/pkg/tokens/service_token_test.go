@@ -22,7 +22,7 @@ func init() {
 func Test_generateServiceToken(t *testing.T) {
 	utils.OpenDB("../../test/tokens/service-token-test-data.db")
 	defer utils.CloseDB()
-	service, err := services.RegisterService("generate_token")
+	service, err := services.RegisterService("generate_token", "/")
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
@@ -38,7 +38,7 @@ func TestLoadServiceToken(t *testing.T) {
 	defer utils.CloseDB()
 
 	t.Run("success for existing service token", func(t *testing.T) {
-		service, err := services.RegisterService("owner_token")
+		service, err := services.RegisterService("owner_token", "/")
 		utils.CheckError(err)
 		serviceToken := generateServiceToken(service)
 		err = serviceToken.create()
@@ -55,7 +55,7 @@ func TestLoadServiceToken(t *testing.T) {
 	})
 
 	t.Run("success for not exist service token", func(t *testing.T) {
-		service, err := services.RegisterService("load_token")
+		service, err := services.RegisterService("load_token", "/")
 		utils.CheckError(err)
 		actualServiceToken, err := LoadServiceToken(service)
 		if actualServiceToken == nil || err != nil ||
@@ -72,7 +72,7 @@ func TestDeleteServiceTokens(t *testing.T) {
 	defer utils.CloseDB()
 
 	t.Run("success", func(t *testing.T) {
-		service, err := services.RegisterService("delete_token")
+		service, err := services.RegisterService("delete_token", "/")
 		utils.CheckError(err)
 		serviceToken, err := LoadServiceToken(service)
 		utils.CheckError(err)
@@ -93,7 +93,7 @@ func TestRenewServiceToken(t *testing.T) {
 	defer utils.CloseDB()
 	
 	t.Run("success", func(t *testing.T) {
-		service, err := services.RegisterService("renew_token")
+		service, err := services.RegisterService("renew_token", "/")
 		utils.CheckError(err)
 		serviceToken, err := LoadServiceToken(service)
 		utils.CheckError(err)

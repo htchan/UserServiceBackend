@@ -7,6 +7,7 @@ import (
 	"time"
 	"github.com/htchan/UserService/backend/internal/utils"
 	"github.com/htchan/UserService/backend/pkg/users"
+	"github.com/htchan/UserService/backend/pkg/services"
 )
 
 func init() {
@@ -20,7 +21,7 @@ func init() {
 	destination.Close()
 }
 
-func Test_generateToken(t *testing.T) {
+func Test_GenerateToken(t *testing.T) {
 	utils.OpenDB("../../test/tokens/user-token-test-data.db")
 	defer utils.CloseDB()
 
@@ -28,10 +29,11 @@ func Test_generateToken(t *testing.T) {
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
-		token := generateUserToken(user, 100)
-		if token.Token == "" || token.userUUID != user.UUID ||
+		token, err := GenerateUserToken(user, services.UserService(), 100)
+		if token == nil || err != nil ||
+			token.Token == "" || token.userUUID != user.UUID ||
 			token.duration != 100 {
-			t.Fatalf("tokens.generateUserToken return wrong token in normal flow")
+			t.Fatalf("tokens.GenerateUserToken return wrong token %v, error: %v", token, err)
 		}
 	})
 }
@@ -42,13 +44,13 @@ func TestLoadUserToken(t *testing.T) {
 	t.Run("user already have token", func(t *testing.T) {
 		user, err := users.Signup("token_owner", "password")
 		utils.CheckError(err)
-		token := generateUserToken(user, 10)
-		if token == nil {
+		token, err := GenerateUserToken(user, services.UserService(), 10)
+		if token == nil || err != nil {
 			panic("token is null")
 		}
 		token.create()
 		
-		resultToken, err := LoadUserToken(user, 100)
+		resultToken, err := LoadUserToken(user, services.UserService(), 100)
 		if err != nil || resultToken.Token != token.Token {
 			t.Fatalf("tokens.LoadUserToken returns wrong token\nexpect: %v\nactual: %v\nerror: %v",
 				token, resultToken, err)
@@ -59,7 +61,7 @@ func TestLoadUserToken(t *testing.T) {
 		user, err := users.Signup("no_token_owner", "password")
 		utils.CheckError(err)
 		now := time.Now()
-		resultToken, err := LoadUserToken(user, 100)
+		resultToken, err := LoadUserToken(user, services.UserService(), 100)
 		if err != nil || resultToken.generateDate < now.Unix() {
 			t.Fatalf("tokens.LoadUserToken returns old generated token: %v, error: %v",
 				resultToken.Token, err)
@@ -69,18 +71,18 @@ func TestLoadUserToken(t *testing.T) {
 	t.Run("user's token already expired", func(t *testing.T) {
 		user, err := users.Signup("expire_token_owner", "password")
 		utils.CheckError(err)
-		token, err := LoadUserToken(user, 0)
+		token, err := LoadUserToken(user, services.UserService(), 0)
 		utils.CheckError(err)
 		now := time.Now()
 		
-		resultToken, err := LoadUserToken(user, 100)
+		resultToken, err := LoadUserToken(user, services.UserService(), 100)
 		if err != nil || resultToken.generateDate < now.Unix() || resultToken.Token == token.Token {
 			t.Fatalf("tokens.LoadUserToken returns old generated token: %v, error: %v",
 				resultToken, err)
 		}
 		checkToken, err := FindUserTokenByTokenStr(token.Token)
 		if checkToken != nil || err == nil {
-			t.Fatalf("tokens.LoadUserToken loads expired token")
+			t.Fatalf("tokens.LoadUserToken loads expired token: %v, error: %v", checkToken, err)
 		}
 	})
 }
@@ -88,10 +90,9 @@ func TestLoadUserToken(t *testing.T) {
 func TestDeleteUserTokens(t *testing.T) {
 	utils.OpenDB("../../test/tokens/user-token-test-data.db")
 	defer utils.CloseDB()
-	user, err := users.Signup("DeleteUsername", "password")
-	token := generateUserToken(user, 100)
-	err = token.create()
-	utils.CheckError(err)
+	user, _ := users.Signup("DeleteUsername", "password")
+	token, _ := GenerateUserToken(user, services.UserService(), 100)
+	
 	emptyUser, err := users.Signup("empty_user", "password")
 	utils.CheckError(err)
 	
@@ -99,7 +100,7 @@ func TestDeleteUserTokens(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		err = DeleteUserTokens(user)
 		utils.CheckError(err)
-		token, err = FindUserTokenByUser(user)
+		token, err = FindUserTokenByUserService(user, services.UserService())
 		if token != nil || err == nil {
 			t.Fatalf("tokens.Token.DeleteUserToken() cannot delete token: %v, err: %v",
 				token, err)

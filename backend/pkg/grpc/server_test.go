@@ -123,13 +123,13 @@ func TestLogin(t *testing.T) {
 	signupParams := NewSignupParams(username, password)
 	token, err := client.Signup(ctx, signupParams)
 	utils.CheckError(err)
-	serviceToken, err := client.RegisterService(ctx, NewServiceName("login_service", "some_url"))
+	serviceToken, err := client.RegisterService(ctx, NewServiceName("login_service", "some_url/"))
 	utils.CheckError(err)
 	loginParams := NewLoginParams(username, password, *serviceToken.Token)
 
 	t.Run("success", func(t *testing.T) {
 		actualToken, err := client.Login(ctx, loginParams)
-		if actualToken == nil || err != nil || *actualToken.Token != *token.Token {
+		if actualToken == nil || err != nil || *actualToken.Token == *token.Token {
 			t.Fatalf("grpc.Server.Login fail in normal flow: token - %v, err - %v",
 				actualToken, err)
 		}
@@ -188,7 +188,7 @@ func TestRegisterService(t *testing.T) {
 	defer utils.CloseDB()
 
 	name := "reg_service"
-	url := "some_url"
+	url := "some_url/"
 	serviceName := NewServiceName(name, url)
 
 	t.Run("success", func(t *testing.T) {
@@ -220,7 +220,7 @@ func TestUnregisterService(t *testing.T) {
 	defer utils.CloseDB()
 
 	name := "un_reg_service"
-	url := "some_url"
+	url := "some_url/"
 	serviceName := NewServiceName(name, url)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
@@ -251,7 +251,7 @@ func TestRegisterPermission(t *testing.T) {
 	defer utils.CloseDB()
 
 	name := "reg_permission_service"
-	url := "some_url"
+	url := "some_url/"
 	serviceName := NewServiceName(name, url)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
@@ -286,7 +286,7 @@ func TestUnregisterPermission(t *testing.T) {
 	defer utils.CloseDB()
 	
 	name := "un_reg_permission_service"
-	url := "some_url"
+	url := "some_url/"
 	serviceName := NewServiceName(name, url)
 	token, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
@@ -343,7 +343,7 @@ func TestAuthorize(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
 	name := "author_service"
-	url := "some_url"
+	url := "some_url/"
 	serviceName := NewServiceName(name, url)
 	serviceToken, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)
@@ -395,7 +395,7 @@ func TestAuthenticate(t *testing.T) {
 	utils.OpenDB("../../test/grpc/server-test-data.db")
 	defer utils.CloseDB()
 	name := "authen_service"
-	url := "some_url"
+	url := "some_url/"
 	serviceName := NewServiceName(name, url)
 	serviceToken, err := client.RegisterService(ctx, serviceName)
 	utils.CheckError(err)

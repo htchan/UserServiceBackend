@@ -21,7 +21,7 @@ func (server *Server) Signup(ctx context.Context, in *grpc.SignupParams) (*grpc.
 	if err != nil {
 		return nil, err
 	}
-	userToken, err := tokens.LoadUserToken(user, 60*60*24)
+	userToken, err := tokens.LoadUserToken(user, services.UserService(), 60*24)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (server *Server) Dropout(ctx context.Context, in *grpc.AuthToken) (*grpc.Re
 	for _, permission := range userPermissions {
 		permissions.RevokePermission(permission)
 	}
-	// remove user's auth token
+	// remove all user's auth token
 	tokens.DeleteUserTokens(user)
 	// remove user in db
 	err = users.Dropout(user)
@@ -60,11 +60,11 @@ func (server *Server) Login(ctx context.Context, in *grpc.LoginParams) (*grpc.To
 	if err != nil {
 		return nil, err
 	}
-	service, err := tokens.FindServiceByTokenStr(*in.Token)
+	service, err := services.FindServiceByName(*in.Service)
 	if err != nil {
 		return nil, err
 	}
-	userToken, err := tokens.LoadUserToken(user, 24 * 60)
+	userToken, err := tokens.LoadUserToken(user, service, 24 * 60)
 	if err != nil {
 		return nil, err
 	}
@@ -180,6 +180,8 @@ func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (
 }
 
 func StartServer(addr string) {
+	userService := services.UserService()
+	tokens.LoadServiceToken(userService)
 	listen, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

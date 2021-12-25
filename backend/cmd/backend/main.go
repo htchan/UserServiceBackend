@@ -11,8 +11,8 @@ import (
 var wg sync.WaitGroup
 
 const (
-	grpcPort = 8000
-	httpPort = 8080
+	grpcPort = 10447
+	httpPort = 9447
 )
 
 func startGRPC() {

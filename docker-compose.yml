@@ -14,7 +14,7 @@ services:
       github.com/htchan/UserService/backend/pkg/permissions \
       github.com/htchan/UserService/backend/pkg/http \
       github.com/htchan/UserService/backend/cmd/backend \
-      github.com/htchan/Userservice/backend/cmd/controller -v"
+      github.com/htchan/UserService/backend/cmd/controller -v"
   backend:
     build:
       context: ./backend
@@ -27,9 +27,6 @@ services:
       - ./bin:/usr/src/app/bin
     networks:
       - router
-    ports:
-      - 8000:8000
-      - 8080:8080
     command: "./backend"
   frontend:
     image: "flutter:latest"

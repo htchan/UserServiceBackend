@@ -12,29 +12,32 @@ type User struct {
 	encryptedPassword string
 }
 
+func check(username, password string) bool {
+	return len(username) != 0 && len(password) != 0
+}
+
 func newUser(username, password string) (*User, error) {
+	if !check(username, password) {
+		return nil, errors.New("invalid_username_password")
+	}
 	user := new(User)
-	var err error
 	user.UUID = uuid.NewString()
 	user.Username = username
-	user.encryptedPassword, err = hashPassword(password)
-	return user, err
+	user.encryptedPassword, _ = hashPassword(password)
+	return user, nil
 }
 
 func Signup(username, password string) (*User, error) {
 	user, err := FindUserByName(username)
 	if err == nil {
-		return nil, errors.New("username already been taken")
+		return nil, errors.New("username_already_exist")
 	}
 	user, err = newUser(username, password)
 	if err != nil {
 		return nil, err
 	}
 	err = user.create()
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
+	return user, err
 }
 
 func Dropout(user *User) error {
@@ -49,6 +52,6 @@ func Login(username, password string) (*User, error) {
 	if checkPasswordHash(password, user.encryptedPassword) {
 		return user, nil
 	} else {
-		return nil, errors.New("incorrect username or password")
+		return nil, errors.New("incorrect_username_password")
 	}
 }

@@ -3,7 +3,10 @@ package services
 import (
 	"errors"
 	"github.com/htchan/UserService/backend/internal/utils"
+	"fmt"
 )
+
+var USER_SERVICE *Service
 
 func (service Service) create() error {
 	tx, err := utils.GetDB().Begin()
@@ -67,4 +70,14 @@ func FindServiceByUUID(uuid string) (*Service, error) {
 		return service, nil
 	}
 	return nil, errors.New("service not found")
+}
+
+func UserService() *Service {
+	var err error
+	USER_SERVICE, err = FindServiceByName("UserService")
+	if err != nil {
+		USER_SERVICE, err = RegisterService("UserService", "/")
+		if err != nil { fmt.Println(err) }
+	}
+	return USER_SERVICE
 }

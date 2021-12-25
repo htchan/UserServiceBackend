@@ -1,4 +1,4 @@
-.PHONY: backend frontend
+.PHONY: backend frontend test
 
 test:
 	cp go.mod ./backend

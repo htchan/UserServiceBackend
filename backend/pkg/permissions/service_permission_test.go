@@ -23,7 +23,7 @@ func TestRegisterPermission(t *testing.T) {
 	utils.OpenDB("../../test/permissions/service-permission-test-data.db")
 	defer utils.CloseDB()
 
-	service, err := services.RegisterService("reg_service")
+	service, err := services.RegisterService("reg_service", "/")
 	utils.CheckError(err)
 
 	t.Run("success", func(t *testing.T) {
@@ -52,7 +52,7 @@ func TestingUnregisterPermission(t *testing.T) {
 	utils.OpenDB("../../test/permissions/service-permission-test-data.db")
 	defer utils.CloseDB()
 
-	service, err := services.RegisterService("reg_service")
+	service, err := services.RegisterService("reg_service", "/")
 	utils.CheckError(err)
 	permission, err := RegisterPermission(service, "permission")
 	utils.CheckError(err)
