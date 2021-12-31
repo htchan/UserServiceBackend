@@ -1,4 +1,4 @@
-.PHONY: backend frontend test
+.PHONY: backend frontend test controller
 
 test:
 	cp go.mod ./backend
@@ -19,7 +19,10 @@ frontend:
 	docker-compose --profile frontend up
 
 controller:
-	echo "to be finish"
+	go build github.com/htchan/UserService/backend/cmd/controller
 
 local_frontend:
 	cd frontend ; flutter run -d chrome
+
+clean:
+	rm controller
