@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import './userChosenPage.dart';
 import './loginPage.dart';
@@ -29,15 +30,16 @@ class Strategy extends HashUrlStrategy {
   }
 }
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: ".env");
   // setPathUrlStrategy();
   setUrlStrategy(Strategy());
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  String url = 'http://localhost:8080/api/users';
-
+  final String url = dotenv.env['API_BASE_URL'] ?? "http://localhost";
+  //'http://192.168.128.146/api/users';
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
