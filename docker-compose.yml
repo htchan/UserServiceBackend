@@ -28,6 +28,16 @@ services:
     networks:
       - router
     command: "./backend"
+  controller:
+    build:
+      context: ./backend
+      dockerfile: ./build/Dockerfile.controller
+    profiles:
+      - all
+      - controller
+    volumes:
+      - ./bin:/usr/src/app/bin
+    command: mv ./cmd /usr/src/app/bin/controller
   frontend:
     image: "flutter:latest"
     volumes:

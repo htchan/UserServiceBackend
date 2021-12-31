@@ -19,7 +19,7 @@ frontend:
 	docker-compose --profile frontend up
 
 controller:
-	go build github.com/htchan/UserService/backend/cmd/controller
+	docker-compose --profile controller up
 
 local_frontend:
 	cd frontend ; flutter run -d chrome
