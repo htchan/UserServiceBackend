@@ -406,7 +406,7 @@ func TestAuthenticate(t *testing.T) {
 
 	username := "authen_username"
 	password := "password"
-	_, err = client.Signup(ctx, NewSignupParams(username, password))
+	userSigninToken, err := client.Signup(ctx, NewSignupParams(username, password))
 	utils.CheckError(err)
 	userToken, err := client.Login(ctx, NewLoginParams(username, password, *serviceName.Name))
 	utils.CheckError(err)
@@ -443,6 +443,17 @@ func TestAuthenticate(t *testing.T) {
 		))
 		if result == nil || err != nil || *result.Result != user.UUID {
 			t.Fatalf("grpc.Server.Authenticate fail in normal flow: resul: %v, err: %v", result, err)
+		}
+	})
+	
+	t.Run("fail if user token not belongs to service", func(t *testing.T) {
+		result, err := client.Authenticate(ctx, NewAuthenticateParams(
+			*userSigninToken.Token,
+			*serviceToken.Token,
+			permissionName,
+		))
+		if result != nil || err == nil {
+			t.Fatalf("grpc.Server.Authenticate success for user with wrong token: resul: %v, err: %v", result, err)
 		}
 	})
 
