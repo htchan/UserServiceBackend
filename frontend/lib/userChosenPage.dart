@@ -48,7 +48,7 @@ class _UserChosenPageState extends State<UserChosenPage> {
             },
           );
         } else {
-          return component.RedirectButton('New User Login', LoginPage.route);
+          return component.RedirectButton('New User Login', "${LoginPage.route}?service=${service}");
         }
       },
     );
