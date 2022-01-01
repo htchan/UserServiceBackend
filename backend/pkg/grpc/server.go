@@ -10,6 +10,7 @@ import (
 	"github.com/htchan/UserService/backend/pkg/permissions"
 	"log"
 	"net"
+	"errors"
 )
 
 type Server struct {
@@ -144,15 +145,27 @@ func (server *Server) UnregisterPermission(ctx context.Context, in *grpc.TokenWi
 	return &grpc.Result{Result: &s}, nil
 }
 
-func (server *Server) Authenticate(ctx context.Context, in *grpc.TokenWithPermission) (*grpc.Result, error) {
-	// check user has permission
-	user, err := tokens.FindUserByTokenStr(*in.Token)
+func (server *Server) Authenticate(ctx context.Context, in *grpc.AuthenticateParams) (*grpc.Result, error) {
+	userToken, err := tokens.FindUserTokenByTokenStr(*in.UserToken)
 	if err != nil {
 		return nil, err
 	}
-	_, err = permissions.FindUserPermissionByPermission(user, *in.Permission)
+	service, err := tokens.FindServiceByTokenStr(*in.ServiceToken)
 	if err != nil {
 		return nil, err
+	}
+	if !userToken.BelongsToService(service) {
+		return nil, errors.New("invalid_token")
+	}
+	user, err := tokens.FindUserByTokenStr(*in.UserToken)
+	if err != nil {
+		return nil, err
+	}
+	if *in.Permission != "" {
+		_, err = permissions.FindUserPermissionByPermission(user, *in.Permission)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &grpc.Result{Result: &user.UUID}, nil
 }

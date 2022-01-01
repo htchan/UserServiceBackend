@@ -56,3 +56,11 @@ func NewTokenWithPermission(token, permission string) *pb.TokenWithPermission {
 		Permission: &permission,
 	}
 }
+
+func NewAuthenticateParams(userToken, serviceToken, permission string) *pb.AuthenticateParams {
+	return &pb.AuthenticateParams{
+		UserToken: &userToken,
+		ServiceToken: &serviceToken,
+		Permission: &permission,
+	}
+}

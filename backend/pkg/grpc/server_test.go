@@ -125,7 +125,7 @@ func TestLogin(t *testing.T) {
 	utils.CheckError(err)
 	serviceToken, err := client.RegisterService(ctx, NewServiceName("login_service", "some_url/"))
 	utils.CheckError(err)
-	loginParams := NewLoginParams(username, password, *serviceToken.Token)
+	loginParams := NewLoginParams(username, password, "login_service")
 
 	t.Run("success", func(t *testing.T) {
 		actualToken, err := client.Login(ctx, loginParams)
@@ -406,7 +406,9 @@ func TestAuthenticate(t *testing.T) {
 
 	username := "authen_username"
 	password := "password"
-	userToken, err := client.Signup(ctx, NewSignupParams(username, password))
+	_, err = client.Signup(ctx, NewSignupParams(username, password))
+	utils.CheckError(err)
+	userToken, err := client.Login(ctx, NewLoginParams(username, password, *serviceName.Name))
 	utils.CheckError(err)
 	user, err := tokens.FindUserByTokenStr(*userToken.Token)
 	utils.CheckError(err)
@@ -422,23 +424,36 @@ func TestAuthenticate(t *testing.T) {
 	))
 	utils.CheckError(err)
 
-	t.Run("success", func(t *testing.T) {
-		result, err := client.Authenticate(ctx, NewTokenWithPermission(
+	t.Run("success without providing permission", func(t *testing.T) {
+		result, err := client.Authenticate(ctx, NewAuthenticateParams(
 			*userToken.Token,
+			*serviceToken.Token,
+			"",
+		))
+		if result == nil || err != nil || *result.Result != user.UUID {
+			t.Fatalf("grpc.Server.Authenticate fail in normal flow: resul: %v, err: %v", result, err)
+		}
+	})
+
+	t.Run("success with permission", func(t *testing.T) {
+		result, err := client.Authenticate(ctx, NewAuthenticateParams(
+			*userToken.Token,
+			*serviceToken.Token,
 			permissionName,
 		))
 		if result == nil || err != nil || *result.Result != user.UUID {
-			t.Fatalf("grpc.Server.Authenticate fail in normal flow")
+			t.Fatalf("grpc.Server.Authenticate fail in normal flow: resul: %v, err: %v", result, err)
 		}
 	})
 
 	t.Run("fail if user have no permission", func(t *testing.T) {
-		result, err := client.Authenticate(ctx, NewTokenWithPermission(
+		result, err := client.Authenticate(ctx, NewAuthenticateParams(
 			*userToken2.Token,
+			*serviceToken.Token,
 			permissionName,
 		))
 		if result != nil || err == nil {
-			t.Fatalf("grpc.Server.Authenticate success for user have no permission")
+			t.Fatalf("grpc.Server.Authenticate success for user have no permission: resul: %v, err: %v", result, err)
 		}
 	})
 }
