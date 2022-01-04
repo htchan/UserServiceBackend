@@ -50,12 +50,19 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   existingUserLogin(String service, token) {
-    String apiUrl = '$url/';
+    String apiUrl = '$url/login';
     http.post(
       Uri.parse(apiUrl),
       body: { "service": service },
       headers: { "Authorization": token }
-    );
+    ).then( (response) {
+      if (response.statusCode == 200) {
+        Map body = jsonDecode(response.body);
+        String url = body['url']!;
+        String userLoginToken = body['token']!;
+        http.post(Uri.parse(url), body: { "token" : userLoginToken });
+      }
+    });
   }
 
   @override

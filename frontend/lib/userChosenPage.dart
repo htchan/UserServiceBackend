@@ -30,7 +30,14 @@ class _UserChosenPageState extends State<UserChosenPage> {
       Uri.parse(apiUrl),
       body: { "service": service },
       headers: { "Authorization": token }
-    );
+    ).then( (response) {
+      if (response.statusCode == 200) {
+        Map body = jsonDecode(response.body);
+        String url = body['url']!;
+        String userLoginToken = body['token']!;
+        http.post(Uri.parse(url), body: { "token" : userLoginToken });
+      }
+    });
   }
   
   Widget UserList(Map<String, String> users) {
