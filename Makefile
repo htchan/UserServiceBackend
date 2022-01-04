@@ -21,8 +21,17 @@ frontend:
 controller:
 	docker-compose --profile controller up
 
+local_build:
+	cp go.mod ./backend
+	cp go.sum ./backend
+	docker-compose --profile local build
+	rm ./backend/go.*
+
 local_frontend:
-	cd frontend ; flutter run -d chrome
+	docker-compose --profile local-frontend up
+
+local_backend:
+	docker-compose --profile local-backend up -d
 
 clean:
 	rm controller

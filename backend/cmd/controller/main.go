@@ -16,7 +16,8 @@ var (
 	password *string
 	serviceName *string
 	url *string
-	token *string
+	serviceToken *string
+	userToken *string
 	permission *string
 	userUUID *string
 	client grpc.Client
@@ -30,7 +31,8 @@ func initFlag() {
 	password = flag.String("password", "", "password")
 	serviceName = flag.String("service-name", "", "service name")
 	url = flag.String("url", "", "url")
-	token = flag.String("token", "", "user / service token")
+	userToken = flag.String("user-token", "", "user token")
+	serviceToken = flag.String("service-token", "", "service token")
 	permission = flag.String("permission", "", "permission")
 	userUUID = flag.String("user-uuid", "", "user uuid")
 	flag.Parse()
@@ -56,13 +58,13 @@ func Signup() {
 	token, err := client.Signup(ctx, signupParams)
 
 	reportError("signup", err)
-	fmt.Printf("token: %v", token)
+	fmt.Printf("user token: %v", token)
 }
 
 func Dropout() {
-	checkVariableNotEmpty("token", token)
+	checkVariableNotEmpty("user-token", userToken)
 
-	authToken := grpc.NewAuthToken(*token)
+	authToken := grpc.NewAuthToken(*userToken)
 	result, err := client.Dropout(ctx, authToken)
 
 	reportError("dropout", err)
@@ -74,17 +76,17 @@ func Login() {
 	checkVariableNotEmpty("password", password)
 	checkVariableNotEmpty("service-name", serviceName)
 
-	loginParams := grpc.NewLoginParams(*username, *password, *token)
+	loginParams := grpc.NewLoginParams(*username, *password, *serviceName)
 	authToken, err := client.Login(ctx, loginParams)
 
 	reportError("login", err)
-	fmt.Printf("token: %v", authToken)
+	fmt.Printf("user token: %v", authToken)
 }
 
 func Logout() {
-	checkVariableNotEmpty("token", token)
+	checkVariableNotEmpty("user-token", userToken)
 
-	authToken := grpc.NewAuthToken(*token)
+	authToken := grpc.NewAuthToken(*userToken)
 	result, err := client.Logout(ctx, authToken)
 
 	reportError("logout", err)
@@ -99,13 +101,13 @@ func RegisterService() {
 	token, err := client.RegisterService(ctx, service)
 
 	reportError("register service", err)
-	fmt.Printf("token: %v", token)
+	fmt.Printf("service token: %v", token)
 }
 
 func UnregisterService() {
-	checkVariableNotEmpty("token", token)
+	checkVariableNotEmpty("service-token", serviceToken)
 
-	authToken := grpc.NewAuthToken(*token)
+	authToken := grpc.NewAuthToken(*serviceToken)
 	result, err := client.UnregisterService(ctx, authToken)
 
 	reportError("logout", err)
@@ -113,10 +115,10 @@ func UnregisterService() {
 }
 
 func Authenticate() {
-	checkVariableNotEmpty("token", token)
-	checkVariableNotEmpty("permission", permission)
+	checkVariableNotEmpty("user-token", userToken)
+	checkVariableNotEmpty("service-token", serviceToken)
 
-	tokenPermission := grpc.NewTokenWithPermission(*token, *permission)
+	tokenPermission := grpc.NewAuthenticateParams(*userToken, *serviceToken, *permission)
 	result, err := client.Authenticate(ctx, tokenPermission)
 
 	reportError("authenticate", err)
@@ -124,11 +126,11 @@ func Authenticate() {
 }
 
 func Authorize() {
-	checkVariableNotEmpty("token", token)
+	checkVariableNotEmpty("service-token", serviceToken)
 	checkVariableNotEmpty("user-uuid", userUUID)
 	checkVariableNotEmpty("permission", permission)
 
-	authorizeParams := grpc.NewAuthorizeParams(*token, *userUUID, *permission)
+	authorizeParams := grpc.NewAuthorizeParams(*serviceToken, *userUUID, *permission)
 	result, err := client.Authorize(ctx, authorizeParams)
 
 	reportError("authorize", err)
@@ -136,10 +138,10 @@ func Authorize() {
 }
 
 func RegisterPermission() {
-	checkVariableNotEmpty("token", token)
+	checkVariableNotEmpty("service-token", serviceToken)
 	checkVariableNotEmpty("permission", permission)
 
-	tokenPermission := grpc.NewTokenWithPermission(*token, *permission)
+	tokenPermission := grpc.NewTokenWithPermission(*serviceToken, *permission)
 	result, err := client.RegisterPermission(ctx, tokenPermission)
 
 	reportError("register permission", err)
@@ -147,10 +149,10 @@ func RegisterPermission() {
 }
 
 func UnregisterPermission() {
-	checkVariableNotEmpty("token", token)
+	checkVariableNotEmpty("service-token", serviceToken)
 	checkVariableNotEmpty("permission", permission)
 
-	tokenPermission := grpc.NewTokenWithPermission(*token, *permission)
+	tokenPermission := grpc.NewTokenWithPermission(*serviceToken, *permission)
 	result, err := client.UnregisterPermission(ctx, tokenPermission)
 
 	reportError("unregister permission", err)
