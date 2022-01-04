@@ -60,11 +60,8 @@ class _LoginPageState extends State<LoginPage> {
         Map body = jsonDecode(response.body);
         String url = body['url']!;
         String userLoginToken = body['token']!;
-        http.post(Uri.parse(url), body: { "token" : userLoginToken })
-        .then( (response) {
-          String location = response.headers['location']!;
-          html.window.location.href = "${location}?token=${token}";
-        });
+        html.window.location.replace("${url}?token=${userLoginToken}");
+
       }
     });
   }
