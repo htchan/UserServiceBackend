@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	goGrpc"google.golang.org/grpc"
+	"github.com/htchan/UserService/backend/internal/utils"
 	"github.com/htchan/UserService/backend/internal/grpc"
 	"github.com/htchan/UserService/backend/pkg/users"
 	"github.com/htchan/UserService/backend/pkg/services"
@@ -10,36 +11,35 @@ import (
 	"github.com/htchan/UserService/backend/pkg/permissions"
 	"log"
 	"net"
+	"errors"
 )
 
 type Server struct {
 	grpc.UnimplementedUserServiceServer
 }
 
-func (server *Server) Signup(ctx context.Context, in *grpc.SignupParams) (*grpc.AuthToken, error) {
-	user, err := users.Signup(*in.Username, *in.Password)
-	if err != nil {
-		return nil, err
-	}
-	userToken, err := tokens.LoadUserToken(user, services.UserService(), 60*24)
-	if err != nil {
-		return nil, err
-	}
-	token := new(grpc.AuthToken)
-	token.Token = &userToken.Token
-	return token, nil
+func recoverError() {
+	recover()
 }
 
-func (server *Server) Dropout(ctx context.Context, in *grpc.AuthToken) (*grpc.Result, error) {
+func (server *Server) Signup(ctx context.Context, in *grpc.SignupParams) (authToken *grpc.AuthToken, err error) {
+	defer recoverError()
+	user, err := users.Signup(*in.Username, *in.Password)
+	utils.CheckError(err)
+	userToken, err := tokens.LoadUserToken(user, services.UserService(), 60*24)
+	utils.CheckError(err)
+	authToken = new(grpc.AuthToken)
+	authToken.Token = &userToken.Token
+	return
+}
+
+func (server *Server) Dropout(ctx context.Context, in *grpc.AuthToken) (result *grpc.Result, err error) {
+	defer recoverError()
 	user, err := tokens.FindUserByTokenStr(*in.Token)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	// remove user's permission
 	userPermissions, err := permissions.FindUserPermissionsByUser(user)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	for _, permission := range userPermissions {
 		permissions.RevokePermission(permission)
 	}
@@ -47,136 +47,118 @@ func (server *Server) Dropout(ctx context.Context, in *grpc.AuthToken) (*grpc.Re
 	tokens.DeleteUserTokens(user)
 	// remove user in db
 	err = users.Dropout(user)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	s := "success"
-	return &grpc.Result{Result: &s}, nil
+	result = &grpc.Result{Result: &s}
+	return
 }
 
-func (server *Server) Login(ctx context.Context, in *grpc.LoginParams) (*grpc.TokenWithUrl, error) {
+func (server *Server) Login(ctx context.Context, in *grpc.LoginParams) (tokenWithUrl *grpc.TokenWithUrl, err error) {
+	defer recoverError()
 	// find / generate token for user
 	user, err := users.Login(*in.Username, *in.Password)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	service, err := services.FindServiceByName(*in.Service)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	userToken, err := tokens.LoadUserToken(user, service, 24 * 60)
-	if err != nil {
-		return nil, err
-	}
-	token := new(grpc.TokenWithUrl)
-	token.Token = &userToken.Token
-	token.Url = &service.Url
-	return token, nil
+	utils.CheckError(err)
+	tokenWithUrl = new(grpc.TokenWithUrl)
+	tokenWithUrl.Token = &userToken.Token
+	tokenWithUrl.Url = &service.Url
+	return
 }
 
-func (server *Server) Logout(ctx context.Context, in *grpc.AuthToken) (*grpc.Result, error) {
+func (server *Server) Logout(ctx context.Context, in *grpc.AuthToken) (result *grpc.Result, err error) {
+	defer recoverError()
 	token, err := tokens.FindUserTokenByTokenStr(*in.Token)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	err = token.Expire()
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	s := "success"
-	return &grpc.Result{Result: &s}, nil
+	result = &grpc.Result{Result: &s}
+	return
 }
 
-func (server *Server) RegisterService(ctx context.Context, in *grpc.ServiceName) (*grpc.AuthToken, error) {
+func (server *Server) RegisterService(ctx context.Context, in *grpc.ServiceName) (authToken *grpc.AuthToken, err error) {
+	defer recoverError()
 	service, err := services.RegisterService(*in.Name, *in.Url)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	serviceToken, err := tokens.LoadServiceToken(service)
-	if err != nil {
-		return nil, err
-	}
-	token := new(grpc.AuthToken)
-	token.Token = &serviceToken.Token
-	return token, nil
+	utils.CheckError(err)
+	authToken = new(grpc.AuthToken)
+	authToken.Token = &serviceToken.Token
+	return
 }
 
-func (server *Server) UnregisterService(ctx context.Context, in *grpc.AuthToken) (*grpc.Result, error) {
+func (server *Server) UnregisterService(ctx context.Context, in *grpc.AuthToken) (result *grpc.Result, err error) {
+	defer recoverError()
 	service, err := tokens.FindServiceByTokenStr(*in.Token)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	err = services.UnregisterService(service)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	s := "success"
-	return &grpc.Result{Result: &s}, nil
+	result = &grpc.Result{Result: &s}
+	return
 }
 
-func (server *Server) RegisterPermission(ctx context.Context, in *grpc.TokenWithPermission) (*grpc.Result, error) {
+func (server *Server) RegisterPermission(ctx context.Context, in *grpc.TokenWithPermission) (result *grpc.Result, err error) {
+	defer recoverError()
 	service, err := tokens.FindServiceByTokenStr(*in.Token)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	_, err = permissions.RegisterPermission(service, *in.Permission)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	s := "success"
-	return &grpc.Result{Result: &s}, nil
+	result = &grpc.Result{Result: &s}
+	return
 }
 
-func (server *Server) UnregisterPermission(ctx context.Context, in *grpc.TokenWithPermission) (*grpc.Result, error) {
+func (server *Server) UnregisterPermission(ctx context.Context, in *grpc.TokenWithPermission) (result *grpc.Result, err error) {
+	defer recoverError()
 	service, err := tokens.FindServiceByTokenStr(*in.Token)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	servicePermission, err := permissions.FindServicePermissionByPermission(service, *in.Permission)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	err = permissions.UnregisterPermission(service, servicePermission)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	s := "success"
-	return &grpc.Result{Result: &s}, nil
+	result = &grpc.Result{Result: &s}
+	return
 }
 
-func (server *Server) Authenticate(ctx context.Context, in *grpc.TokenWithPermission) (*grpc.Result, error) {
-	// check user has permission
-	user, err := tokens.FindUserByTokenStr(*in.Token)
-	if err != nil {
-		return nil, err
+func (server *Server) Authenticate(ctx context.Context, in *grpc.AuthenticateParams) (result *grpc.Result, err error) {
+	defer recoverError()
+	userToken, err := tokens.FindUserTokenByTokenStr(*in.UserToken)
+	utils.CheckError(err)
+	service, err := tokens.FindServiceByTokenStr(*in.ServiceToken)
+	utils.CheckError(err)
+	if !userToken.BelongsToService(service) {
+		err := errors.New("invalid_token")
+		utils.CheckError(err)
 	}
-	_, err = permissions.FindUserPermissionByPermission(user, *in.Permission)
-	if err != nil {
-		return nil, err
+	user, err := tokens.FindUserByTokenStr(*in.UserToken)
+	utils.CheckError(err)
+	if *in.Permission != "" {
+		_, err = permissions.FindUserPermissionByPermission(user, *in.Permission)
+		utils.CheckError(err)
 	}
-	return &grpc.Result{Result: &user.UUID}, nil
+	result = &grpc.Result{Result: &user.UUID}
+	return
 }
 
-func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (*grpc.Result, error) {
+func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (result *grpc.Result, err error) {
+	defer recoverError()
 	// give permission to user
 	service, err := tokens.FindServiceByTokenStr(*in.Token)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	servicePermission, err := permissions.FindServicePermissionByPermission(service, *in.Permission)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	user, err := users.FindUserByUUID(*in.UserUUID)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	err = permissions.GrantPermission(user, servicePermission)
-	if err != nil {
-		return nil, err
-	}
+	utils.CheckError(err)
 	s := "success"
-	return &grpc.Result{Result: &s}, nil
+	result = &grpc.Result{Result: &s}
+	return
 }
 
 func StartServer(addr string) {

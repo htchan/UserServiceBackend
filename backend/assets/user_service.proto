@@ -11,7 +11,7 @@ service UserService {
   rpc Logout (AuthToken) returns (Result) {}
   rpc RegisterService (ServiceName) returns (AuthToken) {}
   rpc UnregisterService (AuthToken) returns (Result) {}
-  rpc Authenticate (TokenWithPermission) returns (Result) {}
+  rpc Authenticate (AuthenticateParams) returns (Result) {}
   rpc Authorize (AuthorizeParams) returns (Result) {}
   rpc RegisterPermission (TokenWithPermission) returns (Result) {}
   rpc UnregisterPermission (TokenWithPermission) returns (Result) {}
@@ -45,6 +45,12 @@ message LoginParams {
   required string username = 1;
   required string password = 2;
   required string service = 3;
+}
+
+message AuthenticateParams {
+  required string userToken = 1;
+  required string serviceToken = 2;
+  optional string permission = 3;
 }
 
 message TokenWithPermission {

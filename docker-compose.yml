@@ -25,9 +25,21 @@ services:
       - web
     volumes:
       - ./bin:/usr/src/app/bin
+    ports:
+      - 8443:10447
     networks:
       - router
     command: "./backend"
+  controller:
+    build:
+      context: ./backend
+      dockerfile: ./build/Dockerfile.controller
+    profiles:
+      - all
+      - controller
+    volumes:
+      - ./bin:/usr/src/app/bin
+    command: mv ./cmd /usr/src/app/bin/controller
   frontend:
     image: "flutter:latest"
     volumes:
@@ -38,7 +50,30 @@ services:
       - frontend
       - web
     command: sh -c "flutter --version ; flutter pub get ; flutter build web"
-
+  local_backend:
+    build:
+      context: ./backend
+      dockerfile: ./build/Dockerfile.backend
+    profiles:
+      - local
+      - local-backend
+    volumes:
+      - ./bin:/usr/src/app/bin
+    ports:
+      - 8443:10447
+      - 9447:9447
+    networks:
+      - router
+    command: "./backend"
+  local_frontend:
+    image: "flutter:latest"
+    volumes:
+      - ./bin/frontend:/build/web
+      - ./frontend:/usr/src/app
+    profiles:
+      - local
+      - local-frontend
+    command: sh -c "flutter --version ; flutter pub get ; flutter build web"
 volumes:
   frontend_volume:
     name: userservice_frontend_volume

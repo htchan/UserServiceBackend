@@ -63,6 +63,11 @@ func tokenLogin(userTokenStr, serviceName string) (serviceAccessToken *tokens.Us
 func Login(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 	res.Header().Set("Access-Control-Allow-Origin", "*")
+	res.Header().Set("Access-Control-Allow-Headers", "*")
+	if req.Method == "OPTIONS" {
+		res.WriteHeader(http.StatusOK)
+		return
+	}
 	if err := req.ParseForm(); err != nil {
 		fmt.Fprintf(res, "ParseForm() err: %v", err)
 		return
@@ -105,6 +110,11 @@ func Login(res http.ResponseWriter, req *http.Request) {
 func Logout(res http.ResponseWriter, req *http.Request) {
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 	res.Header().Set("Access-Control-Allow-Origin", "*")
+	res.Header().Set("Access-Control-Allow-Headers", "*")
+	if req.Method == "OPTIONS" {
+		res.WriteHeader(http.StatusOK)
+		return
+	}
 	tokenStr := req.Header.Get("authorization")
 	token, err := tokens.FindUserTokenByTokenStr(tokenStr)
 	if err != nil {

@@ -24,7 +24,7 @@ type UserServiceClient interface {
 	Logout(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
 	RegisterService(ctx context.Context, in *ServiceName, opts ...grpc.CallOption) (*AuthToken, error)
 	UnregisterService(ctx context.Context, in *AuthToken, opts ...grpc.CallOption) (*Result, error)
-	Authenticate(ctx context.Context, in *TokenWithPermission, opts ...grpc.CallOption) (*Result, error)
+	Authenticate(ctx context.Context, in *AuthenticateParams, opts ...grpc.CallOption) (*Result, error)
 	Authorize(ctx context.Context, in *AuthorizeParams, opts ...grpc.CallOption) (*Result, error)
 	RegisterPermission(ctx context.Context, in *TokenWithPermission, opts ...grpc.CallOption) (*Result, error)
 	UnregisterPermission(ctx context.Context, in *TokenWithPermission, opts ...grpc.CallOption) (*Result, error)
@@ -92,7 +92,7 @@ func (c *userServiceClient) UnregisterService(ctx context.Context, in *AuthToken
 	return out, nil
 }
 
-func (c *userServiceClient) Authenticate(ctx context.Context, in *TokenWithPermission, opts ...grpc.CallOption) (*Result, error) {
+func (c *userServiceClient) Authenticate(ctx context.Context, in *AuthenticateParams, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
 	err := c.cc.Invoke(ctx, "/grpc.UserService/Authenticate", in, out, opts...)
 	if err != nil {
@@ -138,7 +138,7 @@ type UserServiceServer interface {
 	Logout(context.Context, *AuthToken) (*Result, error)
 	RegisterService(context.Context, *ServiceName) (*AuthToken, error)
 	UnregisterService(context.Context, *AuthToken) (*Result, error)
-	Authenticate(context.Context, *TokenWithPermission) (*Result, error)
+	Authenticate(context.Context, *AuthenticateParams) (*Result, error)
 	Authorize(context.Context, *AuthorizeParams) (*Result, error)
 	RegisterPermission(context.Context, *TokenWithPermission) (*Result, error)
 	UnregisterPermission(context.Context, *TokenWithPermission) (*Result, error)
@@ -167,7 +167,7 @@ func (UnimplementedUserServiceServer) RegisterService(context.Context, *ServiceN
 func (UnimplementedUserServiceServer) UnregisterService(context.Context, *AuthToken) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnregisterService not implemented")
 }
-func (UnimplementedUserServiceServer) Authenticate(context.Context, *TokenWithPermission) (*Result, error) {
+func (UnimplementedUserServiceServer) Authenticate(context.Context, *AuthenticateParams) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
 }
 func (UnimplementedUserServiceServer) Authorize(context.Context, *AuthorizeParams) (*Result, error) {
@@ -301,7 +301,7 @@ func _UserService_UnregisterService_Handler(srv interface{}, ctx context.Context
 }
 
 func _UserService_Authenticate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TokenWithPermission)
+	in := new(AuthenticateParams)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -313,7 +313,7 @@ func _UserService_Authenticate_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/grpc.UserService/Authenticate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Authenticate(ctx, req.(*TokenWithPermission))
+		return srv.(UserServiceServer).Authenticate(ctx, req.(*AuthenticateParams))
 	}
 	return interceptor(ctx, in, info, handler)
 }

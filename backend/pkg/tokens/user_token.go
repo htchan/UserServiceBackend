@@ -68,3 +68,7 @@ func DeleteUserTokens(user *users.User) error {
 func (token *UserToken) Expire() error{
 	return token.delete()
 }
+
+func (token *UserToken) BelongsToService(service *services.Service) bool {
+	return token.serviceUUID == service.UUID
+}
