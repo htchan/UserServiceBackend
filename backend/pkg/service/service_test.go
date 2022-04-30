@@ -1,4 +1,4 @@
-package services
+package service
 
 import (
 	"testing"
@@ -23,7 +23,7 @@ func TestRegisterService(t *testing.T) {
 	defer utils.CloseDB()
 	t.Run("success", func(t *testing.T) {
 		service, err := RegisterService("reg_service", "some_url/")
-		if service == nil || err != nil ||
+		if  err != nil ||
 			service.Name != "reg_service" || service.UUID == "" ||
 			service.Url != "some_url/" {
 			t.Fatalf("services.RegisterService return service %v, error %v",
@@ -36,7 +36,7 @@ func TestRegisterService(t *testing.T) {
 
 	t.Run("existing service", func(t *testing.T) {
 		service, err := RegisterService("reg_service", "some_url/")
-		if service != nil || err == nil {
+		if err == nil {
 			t.Fatalf("services.RegisterService return service %v, error %v",
 				service, err)
 		}
