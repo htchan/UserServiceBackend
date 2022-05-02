@@ -1,59 +1,76 @@
 package user
 
 import (
+	"errors"
 	"github.com/google/uuid"
+	"github.com/htchan/UserService/backend/internal/utils"
 )
 
 type User struct {
-	UUID string
-	Username string
+	UUID              string
+	Username          string
 	EncryptedPassword string
 }
 
 var emptyUser = User{}
 
-func ValidUser(username, password string) error {
-	if len(username) == 0 || len(password) == 0 {
-		return InvalidParamsError("username or password")
-	}
-	return nil
-}
-
-func newUser(username, password string) (User, error) {
-	if err := ValidUser(username, password); err != nil {
-		return User{}, err
-	}
+func NewUser(username, password string) User {
 	encryptedPassword, err := hashPassword(password)
-	if err != nil { return User{}, err }
-	user := User{
-		UUID: uuid.NewString(),
-		Username: username,
+	if err != nil {
+		return emptyUser
+	}
+	return User{
+		UUID:              uuid.NewString(),
+		Username:          username,
 		EncryptedPassword: encryptedPassword,
 	}
-	return user, nil
 }
 
-func Signup(username, password string) (User, error) {
-	user, err := FindUserByName(username)
-	if err == nil { return User{}, DuplicatedUserError{} }
-	user, err = newUser(username, password)
-	if err != nil { return User{}, err }
-	err = user.create()
-	return user, err
+func (u User) Create() error {
+	return utils.Execute(
+		u, "create user",
+		"insert into users (uuid, username, password) values (?, ?, ?)",
+		u.UUID, u.Username, u.EncryptedPassword,
+	)
 }
 
-func Dropout(user User) error {
-	return user.delete()
+func (u User) Delete() error {
+	return utils.Execute(
+		u, "delete user",
+		"delete from users where UUID=?",
+		u.UUID,
+	)
 }
 
-func Login(username, password string) (User, error) {
-	user, err := FindUserByName(username)
+
+func GetUser(uuid string) (User, error) {
+	return queryUser(
+		User{UUID: uuid}, "query user by uuid",
+		"select uuid, username, password from users where uuid=?",
+		uuid,
+	)
+}
+
+func GetUserByName(username, password string) (User, error) {
+	u := User{Username: username}
+	operation := "query user by username"
+	user, err := queryUser(
+		u, operation,
+		"select uuid, username, password from users where username=?",
+		username,
+	)
 	if err != nil {
-		return User{}, err
+		return u, err
 	}
-	if checkPasswordHash(password, user.EncryptedPassword) {
-		return user, nil
-	} else {
-		return User{}, IncorrectParamsError("username or password")
+	if !checkPasswordHash(password, user.EncryptedPassword) {
+		return emptyUser, utils.NewNotFoundError(operation, u, errors.New("wrong password"))
 	}
+	return u, nil
+}
+
+func (u User) Valid(password string) error {
+	if !checkPasswordHash(password, u.EncryptedPassword) {
+		return utils.NewInvalidRecordError("wrong password")
+	}
+	return nil
 }
