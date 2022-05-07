@@ -25,7 +25,7 @@ class _UserChosenPageState extends State<UserChosenPage> {
   _UserChosenPageState(this.url, this.service);
 
   existingUserLogin(String service, token) {
-    String apiUrl = '$url/login';
+    String apiUrl = '$url/service/login';
     http.post(
       Uri.parse(apiUrl),
       body: { "service": service },

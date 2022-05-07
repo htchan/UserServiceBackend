@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   existingUserLogin(String service, token) {
-    String apiUrl = '$url/login';
+    String apiUrl = '$url/service/login';
     http.post(
       Uri.parse(apiUrl),
       body: { "service": service },
