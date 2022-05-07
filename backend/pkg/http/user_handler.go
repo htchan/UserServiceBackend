@@ -1,10 +1,12 @@
 package http
 
-import {
+import (
 	"net/http"
-	"github.com/htchan/UserService/pkg/user"
-	"github.com/htchan/UserService/pkg/token"
-}
+	"encoding/json"
+	"github.com/julienschmidt/httprouter"
+	"github.com/htchan/UserService/backend/pkg/service"
+	"github.com/htchan/UserService/backend/pkg/token"
+)
 
 
 func getUserLoginBody(req *http.Request) (username, password string, err error) {

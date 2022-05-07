@@ -3,12 +3,12 @@ package grpc
 import (
 	"context"
 	goGrpc "google.golang.org/grpc"
-	"github.com/htchan/UserService/backend/internal/utils"
+	// "github.com/htchan/UserService/backend/internal/utils"
 	"github.com/htchan/UserService/backend/internal/grpc"
-	"github.com/htchan/UserService/backend/pkg/user"
-	"github.com/htchan/UserService/backend/pkg/service"
+	// "github.com/htchan/UserService/backend/pkg/user"
+	// "github.com/htchan/UserService/backend/pkg/service"
 	"github.com/htchan/UserService/backend/pkg/token"
-	"github.com/htchan/UserService/backend/pkg/permissions"
+	// "github.com/htchan/UserService/backend/pkg/permissions"
 	"log"
 	"net"
 	"errors"
@@ -23,7 +23,7 @@ func recoverError() {
 }
 
 func (server *Server) Signup(ctx context.Context, in *grpc.SignupParams) (authToken *grpc.AuthToken, err error) {
-	userToken, err := token.UserSignup(*in.Username, *in,Password)
+	userToken, err := token.UserSignup(*in.Username, *in.Password)
 	authToken = new(grpc.AuthToken)
 	authToken.Token = &userToken.Token
 	return
@@ -75,7 +75,7 @@ func (server *Server) UnregisterService(ctx context.Context, in *grpc.AuthToken)
 	if err != nil {
 		msg = "success"
 	}
-	result = &grpc.Result{Result: &s}
+	result = &grpc.Result{Result: &msg}
 	return
 }
 
@@ -120,7 +120,7 @@ func (server *Server) Authenticate(ctx context.Context, in *grpc.AuthenticatePar
 	// 	utils.CheckError(err)
 	// }
 	// result = &grpc.Result{Result: &user.UUID}
-	tkn, err := token.GetUserToken(*in.Token)
+	tkn, err := token.GetUserToken(*in.UserToken)
 	if err != nil {
 		err = errors.New("unauthorized user")
 	}
@@ -149,8 +149,6 @@ func (server *Server) Authorize(ctx context.Context, in *grpc.AuthorizeParams) (
 }
 
 func StartServer(addr string) {
-	userService := services.UserService()
-	tokens.LoadServiceToken(userService)
 	listen, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

@@ -2,14 +2,14 @@ package permissions
 
 import (
 	"errors"
-	"github.com/htchan/UserService/backend/pkg/users"
+	"github.com/htchan/UserService/backend/pkg/user"
 )
 
 type UserPermission struct {
 	userUUID, Permission string
 }
 
-func GrantPermission(user *users.User, permission *ServicePermission) error {
+func GrantPermission(user *user.User, permission *ServicePermission) error {
 	if _, err := FindUserPermissionByPermission(user, permission.Permission); err == nil {
 		return errors.New("permission already grant")
 	}

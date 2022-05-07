@@ -12,7 +12,8 @@ COPY ./internal ./backend/internal
 COPY ./pkg ./backend/pkg
 COPY ./cmd/backend ./backend/cmd
 
-RUN go build github.com/htchan/UserService/backend/cmd
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go build github.com/htchan/UserService/backend/cmd
 
 
 FROM golang:1.16.3-alpine3.13

@@ -1,15 +1,11 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"errors"
 	"net/http"
 	"encoding/json"
-	"github.com/htchan/UserService/backend/internal/utils"
-	"github.com/htchan/UserService/backend/pkg/user"
-	"github.com/htchan/UserService/backend/pkg/token"
-	"github.com/htchan/UserService/backend/pkg/service"
+	"github.com/julienschmidt/httprouter"
 )
 
 var InvalidParamsError = errors.New("invalid_params")

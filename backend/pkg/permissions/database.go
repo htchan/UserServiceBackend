@@ -3,8 +3,8 @@ package permissions
 import (
 	"errors"
 	"github.com/htchan/UserService/backend/internal/utils"
-	"github.com/htchan/UserService/backend/pkg/users"
-	"github.com/htchan/UserService/backend/pkg/services"
+	"github.com/htchan/UserService/backend/pkg/user"
+	"github.com/htchan/UserService/backend/pkg/service"
 )
 
 func (userPermission UserPermission) create() error {
@@ -35,7 +35,7 @@ func (userPermission UserPermission) delete() error {
 	return tx.Commit()
 }
 
-func FindUserPermissionsByUser(user *users.User) ([]*UserPermission, error) {
+func FindUserPermissionsByUser(user *user.User) ([]*UserPermission, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func FindUserPermissionsByUser(user *users.User) ([]*UserPermission, error) {
 	return permissions, nil
 }
 
-func FindUserPermissionByPermission(user *users.User, permissionStr string) (*UserPermission, error) {
+func FindUserPermissionByPermission(user *user.User, permissionStr string) (*UserPermission, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (servicePermission ServicePermission) delete() error {
 
 }
 
-func FindServicePermissionsByService(service *services.Service) ([]ServicePermission, error) {
+func FindServicePermissionsByService(service *service.Service) ([]ServicePermission, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func FindServicePermissionsByService(service *services.Service) ([]ServicePermis
 	return permissions, nil
 }
 
-func FindServicePermissionByPermission(service *services.Service, permissionStr string) (*ServicePermission, error) {
+func FindServicePermissionByPermission(service *service.Service, permissionStr string) (*ServicePermission, error) {
 	tx, err := utils.GetDB().Begin()
 	if err != nil {
 		return nil, err
