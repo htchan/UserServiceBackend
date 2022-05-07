@@ -84,14 +84,14 @@ func TestUserNameLogin(t *testing.T) {
 	
 	t.Run("login existing user", func (t *testing.T) {
 		UserSignup("name login", "name login")
-		tkn, err := UserNameLogin("name login", "name login", service.DefaultUserService().UUID)
-		if err != nil || tkn.Token == "" {
+		tkn, url, err := UserNameLogin("name login", "name login", service.DefaultUserService().UUID)
+		if err != nil || tkn.Token == "" || url != service.DefaultUserService().URL {
 			t.Errorf("return error: %v", err)
 		}
 	})
 	
 	t.Run("login not exist user", func (t *testing.T) {
-		_, err := UserNameLogin("not exist user", "name login", service.DefaultUserService().UUID)
+		_, _, err := UserNameLogin("not exist user", "name login", service.DefaultUserService().UUID)
 		if !errors.Is(err, utils.NotFoundError) {
 			t.Errorf("return error: %v", err)
 		}

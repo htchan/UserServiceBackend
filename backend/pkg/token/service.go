@@ -35,16 +35,16 @@ func UserDropout(token string) error {
 	return u.Delete()
 }
 
-func UserNameLogin(username, password, serviceUUID string) (UserToken, error) {
+func UserNameLogin(username, password, serviceUUID string) (UserToken, string, error) {
 	u, err := user.GetUserByName(username, password)
-	if err != nil { return emptyUserToken, err }
+	if err != nil { return emptyUserToken, "", err }
 	DeleteAllExpiredUserTokens(u)
 	s, err := service.GetService(serviceUUID)
-	if err != nil { return emptyUserToken, err }
+	if err != nil { return emptyUserToken, "", err }
 
 	tkn := NewUserToken(u, s)
 	err = tkn.Create()
-	return tkn, err
+	return tkn, s.URL, err
 }
 
 func UserTokenLogin(tokenString, serviceUUID string) (UserToken, error) {

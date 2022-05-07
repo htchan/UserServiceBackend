@@ -11,15 +11,21 @@ compile_grpc: ../assets/user_service.proto
 		--proto_path=../assets/ user_service.proto
 
 ## apply_db_schema: construct ./assets/template.db by sql writern in ./assets/schema/schema.sql
-apply_db_schema: ../assets/schema.sql
+apply_db_schema: ../assets/schema/schema.sql
 	rm -f ../assets/template.db
-	cat ../assets/schema.sql | sqlite3 ../assets/template.db
+	cat ../assets/schema/schema.sql | sqlite3 ../assets/template.db
+
+## generate_test_data: construct ./assets/template.db by sql writern in ./assets/schema/schema.sql
+generate_test_data: ../assets/schema/schema.sql ../assets/schema/test_data.sql
+	rm -f ../assets/test_data.db
+	cat ../assets/schema/schema.sql ../assets/schema/test_data.sql  | sqlite3 ../assets/test_data.db
 
 ## test: test packages and show coverage
 test:
 	clear
-	go get github.com/htchan/UserService/backend/${package}
-	go test github.com/htchan/UserService/backend/${package}
+	# go get github.com/htchan/UserService/backend/${package}
+	go test github.com/htchan/UserService/backend/pkg/token -coverprofile ./profile.out
+	go tool cover -html=profile.out -o coverage.html
 
 poc_orm:
 	clear

@@ -1,32 +1,11 @@
-package token
+package http
 
-import (
-	"errors"
+import {
 	"net/http"
-	"encoding/json"
-
-	"github.com/julienschmidt/httprouter"
-	"github.com/htchan/UserService/backend/pkg/service"
-)
-
-var InvalidParamsError = errors.New("invalid_params")
-
-func writeError(res http.ResponseWriter, statusCode int, err error) {
-	res.WriteHeader(statusCode)
-	messages := map[error]string{
-	}
-	message, ok := messages[err]
-	if !ok { message = "" }
-	json.NewEncoder(res).Encode(map[string]string{ "error": message })
+	"github.com/htchan/UserService/pkg/user"
+	"github.com/htchan/UserService/pkg/token"
 }
 
-func optionsHandler(res http.ResponseWriter, req *http.Request) {
-	res.Header().Set("Content-Type", "application/json; charset=utf-8")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
-	res.Header().Set("Access-Control-Allow-Headers", "*")
-	res.WriteHeader(http.StatusOK)
-	return
-}
 
 func getUserLoginBody(req *http.Request) (username, password string, err error) {
 	if err := req.ParseForm(); err != nil {
@@ -41,7 +20,7 @@ func userLoginHandler(res http.ResponseWriter, req *http.Request) {
 	username, password, err := getUserLoginBody(req)
 	if err != nil { writeError(res, http.StatusBadRequest, err); return }
 
-	tkn, err := UserNameLogin(username, password, service.DefaultUserService().UUID)
+	tkn, _, err := token.UserNameLogin(username, password, service.DefaultUserService().UUID)
 	if err != nil { writeError(res, http.StatusBadRequest, err); return }
 
 	json.NewEncoder(res).Encode(map[string]string{
@@ -51,7 +30,7 @@ func userLoginHandler(res http.ResponseWriter, req *http.Request) {
 
 func userLogoutHandler(res http.ResponseWriter, req *http.Request) {
 	tokenString := req.Header.Get("authorization")
-	err := UserLogout(tokenString)
+	err := token.UserLogout(tokenString)
 	if err != nil {
 		writeError(res, http.StatusUnauthorized, nil)
 		return
@@ -72,7 +51,7 @@ func serviceLoginHandler(res http.ResponseWriter, req *http.Request) {
 	userServiceTokenString, serviceUUID, err := getServiceLoginBody(req)
 	if err != nil { writeError(res, http.StatusBadRequest, err); return }
 
-	tkn, err := UserTokenLogin(userServiceTokenString, serviceUUID)
+	tkn, err := token.UserTokenLogin(userServiceTokenString, serviceUUID)
 	if err != nil { writeError(res, http.StatusBadRequest, err); return }
 
 	s, _ := tkn.Service()
@@ -80,7 +59,7 @@ func serviceLoginHandler(res http.ResponseWriter, req *http.Request) {
 	http.Redirect(res, req, s.RedirectURL(tkn.Token), http.StatusFound)
 }
 
-func Route(router *httprouter.Router) {
+func UserRoutes(router *httprouter.Router) {
 	router.HandlerFunc(http.MethodOptions, "/api/users/login", optionsHandler)
 	router.HandlerFunc(http.MethodOptions, "/api/users/logout", optionsHandler)
 	router.HandlerFunc(http.MethodOptions, "/api/users/service/login", optionsHandler)

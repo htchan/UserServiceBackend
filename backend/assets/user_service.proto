@@ -11,7 +11,9 @@ service UserService {
   rpc Logout (AuthToken) returns (Result) {}
   rpc RegisterService (ServiceName) returns (AuthToken) {}
   rpc UnregisterService (AuthToken) returns (Result) {}
+  # authenticate ensure user has permission
   rpc Authenticate (AuthenticateParams) returns (Result) {}
+  # authorize grant user permission
   rpc Authorize (AuthorizeParams) returns (Result) {}
   rpc RegisterPermission (TokenWithPermission) returns (Result) {}
   rpc UnregisterPermission (TokenWithPermission) returns (Result) {}
