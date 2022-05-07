@@ -18,7 +18,7 @@ test:
 build:
 	cp go.mod ./backend
 	cp go.sum ./backend
-	docker-compose --profile ${service} build
+	DOCKER_BUILDKIT=1 docker-compose --profile ${service} build
 	rm ./backend/go.*
 
 ## backend: deploy backend container

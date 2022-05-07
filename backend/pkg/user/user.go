@@ -54,7 +54,7 @@ func GetUser(uuid string) (User, error) {
 func GetUserByName(username, password string) (User, error) {
 	u := User{Username: username}
 	operation := "query user by username"
-	user, err := queryUser(
+	u, err := queryUser(
 		u, operation,
 		"select uuid, username, password from users where username=?",
 		username,
@@ -62,7 +62,7 @@ func GetUserByName(username, password string) (User, error) {
 	if err != nil {
 		return u, err
 	}
-	if !checkPasswordHash(password, user.EncryptedPassword) {
+	if !checkPasswordHash(password, u.EncryptedPassword) {
 		return emptyUser, utils.NewNotFoundError(operation, u, errors.New("wrong password"))
 	}
 	return u, nil

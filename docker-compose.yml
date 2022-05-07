@@ -41,7 +41,7 @@ services:
       - ./bin:/usr/src/app/bin
     command: mv ./cmd /usr/src/app/bin/controller
   frontend:
-    image: "flutter:latest"
+    image: "flutter:stable"
     volumes:
       - frontend_volume:/build/web
       - ./frontend:/usr/src/app
@@ -49,7 +49,7 @@ services:
       - all
       - frontend
       - web
-    command: sh -c "flutter --version ; flutter pub get ; flutter build web"
+    command: sh -c "flutter --version ; flutter pub get ; flutter build web --base-href \"/users/\""
   local_backend:
     build:
       context: ./backend

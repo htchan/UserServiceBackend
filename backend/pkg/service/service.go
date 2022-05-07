@@ -40,7 +40,7 @@ func GetService(uuid string) (Service, error) {
 
 func GetServiceByName(name string) (Service, error) {
 	return queryService(
-		Service{Name: name}, "query service by uuid",
+		Service{Name: name}, "query service by name",
 		"select uuid, name, url from services where name=?",
 		name,
 	)
