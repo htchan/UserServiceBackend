@@ -58,7 +58,11 @@ func serviceLoginHandler(res http.ResponseWriter, req *http.Request) {
 
 	s, _ := tkn.Service()
 
-	http.Redirect(res, req, s.RedirectURL(tkn.Token), http.StatusFound)
+	// http.Redirect(res, req, s.RedirectURL(tkn.Token), http.StatusFound)
+	json.NewEncoder(res).Encode(map[string]string{
+		"url": s.URL,
+		"token": tkn.Token,
+	})
 }
 
 func UserRoutes(router *httprouter.Router) {
