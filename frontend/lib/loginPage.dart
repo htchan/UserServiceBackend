@@ -61,7 +61,11 @@ class _LoginPageState extends State<LoginPage> {
         String url = body['url']!;
         String userLoginToken = body['token']!;
         html.window.location.replace("${url}?token=${userLoginToken}");
-
+      } else if (response.statusCode == 302) {
+        String? redirectUrl = response.headers['Location'];
+        if (redirectUrl != null) {
+          html.window.location.replace(redirectUrl);
+        }
       }
     });
   }
