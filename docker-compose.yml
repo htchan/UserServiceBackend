@@ -19,6 +19,7 @@ services:
     build:
       context: ./backend
       dockerfile: ./build/Dockerfile.backend
+    hostname: userservice_backend
     profiles:
       - all
       - backend
